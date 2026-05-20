@@ -14,7 +14,7 @@ import '../auth/secure_storage.dart';
 class ApiConfig {
   // Par défaut : émulateur Android
   // À adapter selon votre configuration
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = 'http://192.168.100.203:5000';
 }
 
 /// Singleton Dio configuré : baseUrl, timeouts, ajout automatique du JWT.
