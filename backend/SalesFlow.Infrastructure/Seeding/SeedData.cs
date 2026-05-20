@@ -7,7 +7,7 @@ namespace SalesFlow.Infrastructure.Seeding;
 
 public static class SeedDataFixed
 {
-    private static readonly Guid TestUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private static readonly Guid TestUserId = Guid.Parse("7ddf280d-dbd7-4aed-8eb7-6acb3e9d761f");
     private static readonly string SeedUser = "SeedData";
     private static readonly DateTime SeedTime = DateTime.UtcNow;
 
@@ -16,7 +16,7 @@ public static class SeedDataFixed
     /// </summary>
     public static async Task SeedAllAsync(AppDbContext dbContext)
     {
-        await SeedTestUserAsync(dbContext);
+        //await SeedTestUserAsync(dbContext);
         await SeedProductsAsync(dbContext);
         await SeedClientsAsync(dbContext);
     }
@@ -24,30 +24,30 @@ public static class SeedDataFixed
     /// <summary>
     /// ✅ NEW: Seed test user first (required for FK constraints)
     /// </summary>
-    public static async Task SeedTestUserAsync(AppDbContext dbContext)
-    {
-        if (await dbContext.Users.AnyAsync()) return;
+    //public static async Task SeedTestUserAsync(AppDbContext dbContext)
+    //{
+    //    if (await dbContext.Users.AnyAsync()) return;
 
-        // ✅ Générateur le hash au runtime
-        var plainPassword = "Password123!";
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword, workFactor: 12);
+    //    // ✅ Générateur le hash au runtime
+    //    var plainPassword = "Password123!";
+    //    var hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword, workFactor: 12);
 
-        var testUser = new User
-        {
-            Id = TestUserId,
-            Email = "test@cowema.cg",
-            PasswordHash = hashedPassword, // In real app, hash this properly
-            FullName = "Test User",
-            PhoneNumber = "+242050000000",
-            DomainType = DomainType.Commerce,
-            IsActive = true,
-            CreatedAt = SeedTime,
-            CreatedBy = SeedUser
-        };
+    //    var testUser = new User
+    //    {
+    //        Id = TestUserId,
+    //        Email = "test@cowema.cg",
+    //        PasswordHash = hashedPassword, // In real app, hash this properly
+    //        FullName = "Test User",
+    //        PhoneNumber = "+242050000000",
+    //        DomainType = DomainType.Commerce,
+    //        IsActive = true,
+    //        CreatedAt = SeedTime,
+    //        CreatedBy = SeedUser
+    //    };
 
-        dbContext.Users.Add(testUser);
-        await dbContext.SaveChangesAsync();
-    }
+    //    dbContext.Users.Add(testUser);
+    //    await dbContext.SaveChangesAsync();
+    //}
 
     public static async Task SeedProductsAsync(AppDbContext dbContext)
     {
