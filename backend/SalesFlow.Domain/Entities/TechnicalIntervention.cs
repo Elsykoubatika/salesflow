@@ -22,19 +22,19 @@ public class TechnicalIntervention : BaseEntity
     public DateTime? EndTime { get; set; }
     public decimal ActualHours => EndTime.HasValue ? (decimal)(EndTime.Value - StartTime).TotalHours : 0;
 
-    // Checklist
-    public List<MaintenanceChecklistItem> ChecklistItems { get; set; } = new();
-    
+    // ✅ Changed from MaintenanceChecklistItem to TechnicalChecklistItem
+    public List<TechnicalChecklistItem> ChecklistItems { get; set; } = new();
+
     // Additional materials used during intervention
     public List<TechnicalQuoteItem> AdditionalMaterials { get; set; } = new();
-    
+
     // Notes & photos
     public string Notes { get; set; } = string.Empty;
     public List<string> PhotoUrls { get; set; } = new();
 
     // Invoicing
     public decimal TotalAmount { get; set; }
-    public string Status { get; set; } = "InProgress"; // InProgress, Completed, Invoiced
+    public string Status { get; set; } = "InProgress";
     public DateTime? CompletedAt { get; set; }
 }
 

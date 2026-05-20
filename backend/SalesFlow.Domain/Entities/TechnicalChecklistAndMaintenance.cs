@@ -5,13 +5,13 @@ namespace SalesFlow.Domain.Entities;
 public class TechnicalChecklistItem : BaseEntity
 {
     public Guid TechnicalInterventionId { get; set; }
-    public TechnicalIntervention? Intervention { get; set; }
-    public TechnicalIntervention? TechnicalIntervention { get; set; }
+    public TechnicalIntervention? TechnicalIntervention { get; set; }  // ✅ Keep only ONE
+
     public string Title { get; set; } = string.Empty;
     public bool IsCompleted { get; set; }
     public DateTime? CompletedAt { get; set; }
-
     public string Task { get; set; } = string.Empty;
+    public TechnicalIntervention? Intervention { get; set; }
 }
 
 public class MaintenancePlan : BaseEntity

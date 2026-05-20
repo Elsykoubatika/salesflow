@@ -42,9 +42,15 @@ public class AppDbContext : DbContext, IAppDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Charge automatiquement toutes les configurations IEntityTypeConfiguration
-        // de l'assembly courant (UserConfiguration, ClientConfiguration, etc.)
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
+
+        // ✅ Simple, explicit relationship configuration
+        modelBuilder.Entity<TechnicalChecklistItem>()
+            .HasOne(x => x.TechnicalIntervention)
+            .WithMany(x => x.ChecklistItems)
+            .HasForeignKey(x => x.TechnicalInterventionId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
