@@ -13,8 +13,8 @@ using SalesFlow.Infrastructure.Persistence;
 namespace SalesFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260516180649_AddTechnicalAndLiberalModules")]
-    partial class AddTechnicalAndLiberalModules
+    [Migration("20260520155559_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
@@ -47,6 +53,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
@@ -92,6 +104,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Currency")
                         .IsRequired()
                         .HasColumnType("text");
@@ -102,6 +120,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -133,11 +157,23 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("FinanceAccountId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Period")
                         .IsRequired()
@@ -187,12 +223,24 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("FinanceAccountId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -220,6 +268,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -229,6 +283,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsRecurring")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PaymentMethod")
                         .HasColumnType("text");
@@ -272,6 +332,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -280,6 +346,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastMovementAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
@@ -338,8 +410,20 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Note")
                         .HasMaxLength(500)
@@ -377,6 +461,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DeliverableName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -393,6 +483,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("LiberalInvoiceId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -430,6 +526,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<decimal?>("DailyRate")
                         .HasColumnType("numeric");
 
@@ -445,6 +547,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsRecurring")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("MonthlyRetainer")
                         .HasColumnType("numeric");
@@ -527,6 +635,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DeliverableDetails")
                         .HasColumnType("text");
 
@@ -539,6 +653,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("PaidDate")
                         .HasColumnType("timestamp with time zone");
@@ -594,6 +714,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -606,6 +732,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("HourlyRate")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .IsRequired()
@@ -647,48 +779,6 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.ToTable("LiberalProjects");
                 });
 
-            modelBuilder.Entity("SalesFlow.Domain.Entities.MaintenanceChecklistItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ChecklistTemplateId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("TechnicalInterventionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TechnicalInterventionId");
-
-                    b.ToTable("MaintenanceChecklistItem");
-                });
-
             modelBuilder.Entity("SalesFlow.Domain.Entities.MaintenancePlan", b =>
                 {
                     b.Property<Guid>("Id")
@@ -708,6 +798,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -724,10 +820,20 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastMaintenanceDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("NextScheduledDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
@@ -755,14 +861,29 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("ActualHours")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("EstimatedHours")
+                        .HasColumnType("numeric");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean");
@@ -770,10 +891,24 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("MaintenancePlanId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Sequence")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("TaskName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -796,6 +931,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DocumentName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -810,6 +951,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<long>("FileSizeBytes")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("TechnicalPaymentRecordId")
                         .HasColumnType("uuid");
@@ -839,8 +986,20 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("LiberalInvoiceId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -878,6 +1037,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -887,6 +1052,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsRenewalEvent")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -913,6 +1084,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Currency")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -930,6 +1107,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -973,6 +1156,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -985,6 +1174,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("LiberalProjectId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Order")
                         .HasColumnType("integer");
@@ -1016,6 +1211,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DocumentName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1036,6 +1237,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("LiberalProjectId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1059,6 +1266,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1071,6 +1284,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("LiberalProjectId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Order")
                         .HasColumnType("integer");
@@ -1112,6 +1331,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Currency")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1134,6 +1359,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("ImageSizeBytes")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
@@ -1193,6 +1424,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1204,6 +1441,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("LastContactDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("NeedsRenewal")
@@ -1258,6 +1501,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
 
@@ -1265,6 +1514,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
@@ -1326,6 +1581,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Currency")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1337,6 +1598,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
@@ -1395,10 +1662,22 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -1440,8 +1719,23 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("InterventionId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Task")
                         .IsRequired()
@@ -1450,10 +1744,16 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TechnicalInterventionId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("InterventionId");
 
                     b.HasIndex("TechnicalInterventionId");
 
@@ -1475,6 +1775,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -1485,6 +1791,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .IsRequired()
@@ -1549,6 +1861,16 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1568,6 +1890,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("MaterialsCost")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -1638,6 +1966,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
 
@@ -1646,6 +1980,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("MobileMoneyReference")
                         .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -1701,6 +2041,16 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1716,6 +2066,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("MaterialsCost")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("QuoteNumber")
                         .IsRequired()
@@ -1745,6 +2101,9 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ValidUntil")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
@@ -1763,6 +2122,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ItemName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1770,6 +2135,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<string>("ItemType")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Quantity")
                         .HasColumnType("numeric");
@@ -1813,6 +2184,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DomainType")
                         .HasColumnType("integer");
 
@@ -1828,6 +2205,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -2007,17 +2390,6 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SalesFlow.Domain.Entities.MaintenanceChecklistItem", b =>
-                {
-                    b.HasOne("SalesFlow.Domain.Entities.TechnicalIntervention", "TechnicalIntervention")
-                        .WithMany("ChecklistItems")
-                        .HasForeignKey("TechnicalInterventionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TechnicalIntervention");
                 });
 
             modelBuilder.Entity("SalesFlow.Domain.Entities.MaintenancePlan", b =>
@@ -2223,11 +2595,17 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("SalesFlow.Domain.Entities.TechnicalIntervention", "Intervention")
                         .WithMany()
+                        .HasForeignKey("InterventionId");
+
+                    b.HasOne("SalesFlow.Domain.Entities.TechnicalIntervention", "TechnicalIntervention")
+                        .WithMany("ChecklistItems")
                         .HasForeignKey("TechnicalInterventionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Intervention");
+
+                    b.Navigation("TechnicalIntervention");
                 });
 
             modelBuilder.Entity("SalesFlow.Domain.Entities.TechnicalIntervention", b =>

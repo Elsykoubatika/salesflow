@@ -7,11 +7,64 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SalesFlow.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTechnicalAndLiberalModules : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: false),
+                    PasswordHash = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    FullName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    DomainType = table.Column<int>(type: "integer", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "clients",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FullName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    Email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: true),
+                    Address = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Region = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_clients", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_clients_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateTable(
                 name: "FinanceAccounts",
                 columns: table => new
@@ -24,13 +77,88 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     CurrentBalance = table.Column<decimal>(type: "numeric", nullable: false),
                     Currency = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FinanceAccounts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_FinanceAccounts_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "products",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    Price = table.Column<decimal>(type: "numeric(12,2)", nullable: false),
+                    Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false, defaultValue: "XAF"),
+                    ImageUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    VariantsJson = table.Column<string>(type: "jsonb", nullable: true),
+                    Sku = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_products_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProspectContacts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompanyName = table.Column<string>(type: "text", nullable: false),
+                    ContactPerson = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    Stage = table.Column<string>(type: "text", nullable: false),
+                    Source = table.Column<string>(type: "text", nullable: true),
+                    FirstContactDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastContactDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    NextFollowUpDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EstimatedValue = table.Column<decimal>(type: "numeric", nullable: false),
+                    Probability = table.Column<decimal>(type: "numeric", nullable: false),
+                    RenewalDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    NeedsRenewal = table.Column<bool>(type: "boolean", nullable: false),
+                    RenewalReminders = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Notes = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProspectContacts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProspectContacts_users_UserId",
                         column: x => x.UserId,
                         principalTable: "users",
                         principalColumn: "Id",
@@ -66,7 +194,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     ContractDocument = table.Column<string>(type: "text", nullable: true),
                     Notes = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -105,7 +237,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     TotalPaid = table.Column<decimal>(type: "numeric", nullable: false),
                     Notes = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -131,10 +267,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PlanName = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
                     AssetName = table.Column<string>(type: "text", nullable: false),
                     AssetModel = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    Status = table.Column<string>(type: "text", nullable: false),
                     Frequency = table.Column<string>(type: "text", nullable: false),
                     EstimatedCost = table.Column<decimal>(type: "numeric", nullable: false),
                     EstimatedDuration = table.Column<double>(type: "double precision", nullable: false),
@@ -142,7 +279,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     NextScheduledDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Notes = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -162,34 +303,44 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProspectContacts",
+                name: "sales_orders",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompanyName = table.Column<string>(type: "text", nullable: false),
-                    ContactPerson = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
-                    Stage = table.Column<string>(type: "text", nullable: false),
-                    Source = table.Column<string>(type: "text", nullable: true),
-                    FirstContactDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastContactDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    NextFollowUpDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    EstimatedValue = table.Column<decimal>(type: "numeric", nullable: false),
-                    Probability = table.Column<decimal>(type: "numeric", nullable: false),
-                    RenewalDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    NeedsRenewal = table.Column<bool>(type: "boolean", nullable: false),
-                    RenewalReminders = table.Column<List<string>>(type: "text[]", nullable: false),
-                    Notes = table.Column<string>(type: "text", nullable: true),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrderNumber = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false, defaultValue: "XAF"),
+                    Subtotal = table.Column<decimal>(type: "numeric(14,2)", nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "numeric(14,2)", nullable: false),
+                    Total = table.Column<decimal>(type: "numeric(14,2)", nullable: false),
+                    Notes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    AcceptedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeliveredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PaidAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CancelledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CancellationReason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProspectContacts", x => x.Id);
+                    table.PrimaryKey("PK_sales_orders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProspectContacts_users_UserId",
+                        name: "FK_sales_orders_clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_sales_orders_users_UserId",
                         column: x => x.UserId,
                         principalTable: "users",
                         principalColumn: "Id",
@@ -201,6 +352,8 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Currency = table.Column<string>(type: "text", nullable: false),
+                    ValidUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
                     QuoteNumber = table.Column<string>(type: "text", nullable: false),
@@ -217,7 +370,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     AcceptedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -251,7 +408,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -275,7 +436,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     Icon = table.Column<string>(type: "text", nullable: false),
                     Color = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -305,7 +470,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     IsRecurring = table.Column<bool>(type: "boolean", nullable: false),
                     RecurrencePattern = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -314,6 +483,74 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         name: "FK_FinanceTransactions_FinanceAccounts_FinanceAccountId",
                         column: x => x.FinanceAccountId,
                         principalTable: "FinanceAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "inventory_items",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    Sku = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Unit = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false, defaultValue: "pcs"),
+                    Quantity = table.Column<decimal>(type: "numeric(14,3)", nullable: false),
+                    ReorderThreshold = table.Column<decimal>(type: "numeric(14,3)", nullable: true),
+                    Cost = table.Column<decimal>(type: "numeric(12,2)", nullable: true),
+                    LastMovementAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_inventory_items", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_inventory_items_products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_inventory_items_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PipelineEvents",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProspectContactId = table.Column<Guid>(type: "uuid", nullable: false),
+                    EventType = table.Column<string>(type: "text", nullable: false),
+                    EventDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Notes = table.Column<string>(type: "text", nullable: true),
+                    IsRenewalEvent = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PipelineEvents", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PipelineEvents_ProspectContacts_ProspectContactId",
+                        column: x => x.ProspectContactId,
+                        principalTable: "ProspectContacts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -342,7 +579,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     AmountPaid = table.Column<decimal>(type: "numeric", nullable: false),
                     PaidDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -380,7 +621,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     CompletedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Order = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -406,7 +651,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     ContentType = table.Column<string>(type: "text", nullable: false),
                     IsTemplate = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -434,7 +683,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     ActualHours = table.Column<decimal>(type: "numeric", nullable: false),
                     Order = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -453,13 +706,22 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     MaintenancePlanId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EstimatedHours = table.Column<decimal>(type: "numeric", nullable: false),
+                    ActualHours = table.Column<decimal>(type: "numeric", nullable: false),
                     TaskName = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     Sequence = table.Column<int>(type: "integer", nullable: false),
                     IsCompleted = table.Column<bool>(type: "boolean", nullable: false),
                     CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -473,25 +735,122 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PipelineEvents",
+                name: "proofs",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProspectContactId = table.Column<Guid>(type: "uuid", nullable: false),
-                    EventType = table.Column<string>(type: "text", nullable: false),
-                    EventDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Notes = table.Column<string>(type: "text", nullable: true),
-                    IsRenewalEvent = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ImageBytes = table.Column<byte[]>(type: "bytea", nullable: false),
+                    ImageContentType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ImageSizeBytes = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(14,2)", nullable: true),
+                    Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false, defaultValue: "XAF"),
+                    TransactionReference = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Operator = table.Column<int>(type: "integer", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SalesOrderId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PipelineEvents", x => x.Id);
+                    table.PrimaryKey("PK_proofs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PipelineEvents_ProspectContacts_ProspectContactId",
-                        column: x => x.ProspectContactId,
-                        principalTable: "ProspectContacts",
+                        name: "FK_proofs_clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_proofs_sales_orders_SalesOrderId",
+                        column: x => x.SalesOrderId,
+                        principalTable: "sales_orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_proofs_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "reminders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SalesOrderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Message = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
+                    ReadAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ScheduledFor = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_reminders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_reminders_sales_orders_SalesOrderId",
+                        column: x => x.SalesOrderId,
+                        principalTable: "sales_orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_reminders_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "sales_order_items",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SalesOrderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "numeric(12,2)", nullable: false),
+                    Quantity = table.Column<decimal>(type: "numeric(10,3)", nullable: false),
+                    Notes = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_sales_order_items", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_sales_order_items_products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_sales_order_items_sales_orders_SalesOrderId",
+                        column: x => x.SalesOrderId,
+                        principalTable: "sales_orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -515,7 +874,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     Status = table.Column<string>(type: "text", nullable: false),
                     CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -540,6 +903,35 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "inventory_movements",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    InventoryItemId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Change = table.Column<decimal>(type: "numeric(14,3)", nullable: false),
+                    Reason = table.Column<int>(type: "integer", nullable: false),
+                    ResultingQuantity = table.Column<decimal>(type: "numeric(14,3)", nullable: false),
+                    Note = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    SalesOrderId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_inventory_movements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_inventory_movements_inventory_items_InventoryItemId",
+                        column: x => x.InventoryItemId,
+                        principalTable: "inventory_items",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InvoiceDeliverable",
                 columns: table => new
                 {
@@ -550,7 +942,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     IsCompleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeliveryDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -576,7 +972,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     Status = table.Column<string>(type: "text", nullable: false),
                     Notes = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -590,46 +990,31 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MaintenanceChecklistItem",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TechnicalInterventionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    IsCompleted = table.Column<bool>(type: "boolean", nullable: false),
-                    Notes = table.Column<string>(type: "text", nullable: true),
-                    Order = table.Column<int>(type: "integer", nullable: false),
-                    ChecklistTemplateId = table.Column<string>(type: "text", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MaintenanceChecklistItem", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MaintenanceChecklistItem_TechnicalInterventions_TechnicalIn~",
-                        column: x => x.TechnicalInterventionId,
-                        principalTable: "TechnicalInterventions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TechnicalChecklistItems",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TechnicalInterventionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Task = table.Column<string>(type: "text", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
                     IsCompleted = table.Column<bool>(type: "boolean", nullable: false),
                     CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Task = table.Column<string>(type: "text", nullable: false),
+                    InterventionId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TechnicalChecklistItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TechnicalChecklistItems_TechnicalInterventions_Intervention~",
+                        column: x => x.InterventionId,
+                        principalTable: "TechnicalInterventions",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TechnicalChecklistItems_TechnicalInterventions_TechnicalInt~",
                         column: x => x.TechnicalInterventionId,
@@ -645,6 +1030,7 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Currency = table.Column<string>(type: "text", nullable: false),
                     TechnicalInterventionId = table.Column<Guid>(type: "uuid", nullable: true),
                     TechnicalQuoteId = table.Column<Guid>(type: "uuid", nullable: true),
                     InvoiceNumber = table.Column<string>(type: "text", nullable: false),
@@ -667,7 +1053,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     PdfFilePath = table.Column<string>(type: "text", nullable: true),
                     Notes = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -714,7 +1104,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     VerificationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Notes = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -741,7 +1135,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     TechnicalInterventionId = table.Column<Guid>(type: "uuid", nullable: true),
                     TechnicalInvoiceId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -776,7 +1174,11 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                     FileSizeBytes = table.Column<long>(type: "bigint", nullable: false),
                     UploadDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -788,6 +1190,16 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_clients_UserId",
+                table: "clients",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_clients_UserId_PhoneNumber",
+                table: "clients",
+                columns: new[] { "UserId", "PhoneNumber" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FinanceAccounts_UserId",
@@ -808,6 +1220,41 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 name: "IX_FinanceTransactions_FinanceAccountId",
                 table: "FinanceTransactions",
                 column: "FinanceAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventory_items_ProductId",
+                table: "inventory_items",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventory_items_UserId",
+                table: "inventory_items",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventory_items_UserId_IsActive",
+                table: "inventory_items",
+                columns: new[] { "UserId", "IsActive" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventory_items_UserId_Sku",
+                table: "inventory_items",
+                columns: new[] { "UserId", "Sku" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventory_movements_InventoryItemId",
+                table: "inventory_movements",
+                column: "InventoryItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventory_movements_InventoryItemId_CreatedAt",
+                table: "inventory_movements",
+                columns: new[] { "InventoryItemId", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_inventory_movements_SalesOrderId",
+                table: "inventory_movements",
+                column: "SalesOrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InvoiceDeliverable_LiberalInvoiceId",
@@ -850,11 +1297,6 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MaintenanceChecklistItem_TechnicalInterventionId",
-                table: "MaintenanceChecklistItem",
-                column: "TechnicalInterventionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MaintenancePlans_ClientId",
                 table: "MaintenancePlans",
                 column: "ClientId");
@@ -885,6 +1327,16 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 column: "ProspectContactId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_products_UserId",
+                table: "products",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_products_UserId_IsActive",
+                table: "products",
+                columns: new[] { "UserId", "IsActive" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProjectDeliverables_LiberalProjectId",
                 table: "ProjectDeliverables",
                 column: "LiberalProjectId");
@@ -900,9 +1352,90 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 column: "LiberalProjectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_proofs_ClientId",
+                table: "proofs",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_proofs_SalesOrderId",
+                table: "proofs",
+                column: "SalesOrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_proofs_TransactionReference",
+                table: "proofs",
+                column: "TransactionReference");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_proofs_UserId",
+                table: "proofs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_proofs_UserId_Status",
+                table: "proofs",
+                columns: new[] { "UserId", "Status" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProspectContacts_UserId",
                 table: "ProspectContacts",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_reminders_SalesOrderId",
+                table: "reminders",
+                column: "SalesOrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_reminders_ScheduledFor",
+                table: "reminders",
+                column: "ScheduledFor");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_reminders_UserId",
+                table: "reminders",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_reminders_UserId_IsRead",
+                table: "reminders",
+                columns: new[] { "UserId", "IsRead" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sales_order_items_ProductId",
+                table: "sales_order_items",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sales_order_items_SalesOrderId",
+                table: "sales_order_items",
+                column: "SalesOrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sales_orders_ClientId",
+                table: "sales_orders",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sales_orders_UserId",
+                table: "sales_orders",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sales_orders_UserId_OrderNumber",
+                table: "sales_orders",
+                columns: new[] { "UserId", "OrderNumber" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sales_orders_UserId_Status",
+                table: "sales_orders",
+                columns: new[] { "UserId", "Status" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TechnicalChecklistItems_InterventionId",
+                table: "TechnicalChecklistItems",
+                column: "InterventionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TechnicalChecklistItems_TechnicalInterventionId",
@@ -973,6 +1506,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 name: "IX_TechnicalQuotes_UserId",
                 table: "TechnicalQuotes",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_Email",
+                table: "users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -988,10 +1527,10 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 name: "FinanceTransactions");
 
             migrationBuilder.DropTable(
-                name: "InvoiceDeliverable");
+                name: "inventory_movements");
 
             migrationBuilder.DropTable(
-                name: "MaintenanceChecklistItem");
+                name: "InvoiceDeliverable");
 
             migrationBuilder.DropTable(
                 name: "MaintenanceTasks");
@@ -1015,6 +1554,15 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 name: "ProjectTask");
 
             migrationBuilder.DropTable(
+                name: "proofs");
+
+            migrationBuilder.DropTable(
+                name: "reminders");
+
+            migrationBuilder.DropTable(
+                name: "sales_order_items");
+
+            migrationBuilder.DropTable(
                 name: "TechnicalChecklistItems");
 
             migrationBuilder.DropTable(
@@ -1022,6 +1570,9 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "FinanceAccounts");
+
+            migrationBuilder.DropTable(
+                name: "inventory_items");
 
             migrationBuilder.DropTable(
                 name: "MaintenancePlans");
@@ -1039,6 +1590,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
                 name: "LiberalProjects");
 
             migrationBuilder.DropTable(
+                name: "sales_orders");
+
+            migrationBuilder.DropTable(
+                name: "products");
+
+            migrationBuilder.DropTable(
                 name: "TechnicalInvoices");
 
             migrationBuilder.DropTable(
@@ -1049,6 +1606,12 @@ namespace SalesFlow.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "TechnicalQuotes");
+
+            migrationBuilder.DropTable(
+                name: "clients");
+
+            migrationBuilder.DropTable(
+                name: "users");
         }
     }
 }

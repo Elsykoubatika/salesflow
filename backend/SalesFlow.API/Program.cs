@@ -79,7 +79,6 @@ builder.Services.AddSwaggerGen(opt =>
 
 var app = builder.Build();
 
-// Applique automatiquement les migrations EF au démarrage en environnement de dev
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -91,11 +90,10 @@ if (app.Environment.IsDevelopment())
         await dbContext.Database.MigrateAsync();
         Console.WriteLine("✅ Migrations applied successfully");
 
-        // Seed data (20 articles + 5 clients)
-        await SeedDataFixed.SeedProductsAsync(dbContext);
+        // ✅ NEW: Seed all data in correct order (user → products → clients)
+        await SeedDataFixed.SeedAllAsync(dbContext);
+        Console.WriteLine("✅ Test user seeded");
         Console.WriteLine("✅ 20 products seeded");
-
-        await SeedDataFixed.SeedClientsAsync(dbContext);
         Console.WriteLine("✅ 5 clients seeded");
     }
     catch (Exception ex)

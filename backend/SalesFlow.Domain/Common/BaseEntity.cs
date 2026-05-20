@@ -7,13 +7,14 @@ namespace SalesFlow.Domain.Common;
 public abstract class BaseEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
+
+    // ✅ Keep ONE set of audit fields
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public string? CreatedBy { get; set; }
+    public string? ModifiedBy { get; set; }
+
+    // Remove duplicates - they're confusing and waste database space
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     public DateTime? ModifiedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public string? ModifiedBy
-    {
-        get; set;
-    }
 }

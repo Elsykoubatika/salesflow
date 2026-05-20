@@ -114,21 +114,18 @@ public class TechnicalInterventionsController : ControllerBase
 
         if (intervention == null) return NotFound();
 
-        // Create checklist item - use TechnicalChecklistItems DbSet if available
-        // Or store it via intervention.ChecklistItems collection
-        var checklistItem = new MaintenanceChecklistItem
+        // ✅ FIXED: Use TechnicalChecklistItem instead of MaintenanceChecklistItem
+        var checklistItem = new TechnicalChecklistItem
         {
             TechnicalInterventionId = id,
             Title = request.Title ?? string.Empty,
             IsCompleted = false,
         };
 
-        // If using DbSet:
-        // _db.TechnicalChecklistItems.Add(checklistItem);
-        // Or if it's a collection on intervention:
-        intervention.ChecklistItems?.Add(checklistItem);
-
+        // Add via DbSet for consistency
+        _db.TechnicalChecklistItems.Add(checklistItem);
         await _db.SaveChangesAsync();
+
         return Ok(checklistItem);
     }
 
@@ -136,8 +133,7 @@ public class TechnicalInterventionsController : ControllerBase
     public async Task<ActionResult> UpdateChecklistItem(Guid id, Guid itemId, [FromBody] UpdateChecklistItemRequest request)
     {
         var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-        
-        // Query the checklist items through TechnicalChecklistItems if available
+
         var checklistItem = await _db.TechnicalChecklistItems
             .Include(x => x.TechnicalIntervention)
             .Where(x => x.Id == itemId && x.TechnicalIntervention!.UserId == userId)
@@ -155,7 +151,7 @@ public class TechnicalInterventionsController : ControllerBase
     public async Task<ActionResult> CompleteChecklistItem(Guid id, Guid itemId)
     {
         var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-        
+
         var checklistItem = await _db.TechnicalChecklistItems
             .Include(x => x.TechnicalIntervention)
             .Where(x => x.Id == itemId && x.TechnicalIntervention!.UserId == userId)

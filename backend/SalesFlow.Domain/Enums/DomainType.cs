@@ -8,5 +8,6 @@ public enum DomainType
 {
     Commerce = 1,    // Boutiques, vendeurs, e-commerçants
     Technique = 2,   // Électriciens, informaticiens, maintenance
-    Liberal = 3      // Consultants, juristes, professions libérales
+    Liberal = 3,      // Consultants, juristes, professions libérales
+    SaleAgent = 4,
 }
