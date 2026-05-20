@@ -26,12 +26,12 @@ public class TechnicalQuotesController : ControllerBase
     {
         var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
 
-        var query = _db.TechnicalQuotes
+        IQueryable<TechnicalQuote> query = _db.TechnicalQuotes
             .Where(q => q.UserId == userId)
             .Include(q => q.Items);
 
         if (!string.IsNullOrEmpty(status))
-            query = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<TechnicalQuote, List<TechnicalQuoteItem>>)query.Where(q => q.Status == status);
+            query = query.Where(q => q.Status == status);
 
         var total = await query.CountAsync();
         var items = await query

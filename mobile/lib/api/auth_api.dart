@@ -7,10 +7,10 @@ import 'api_client.dart';
 class AuthApi {
   final Dio _dio = ApiClient().dio;
 
-  /// POST /api/Auth/login
+  /// POST /api/auth/login
   Future<AuthResponse> login({required String email, required String password}) async {
     try {
-      final response = await _dio.post('/api/Auth/login', data: {
+      final response = await _dio.post('/api/auth/login', data: {
         'email': email,
         'password': password,
       });
@@ -20,7 +20,7 @@ class AuthApi {
     }
   }
 
-  /// POST /api/Auth/register
+  /// POST /api/auth/register
   Future<AuthResponse> register({
     required String email,
     required String password,
@@ -29,7 +29,7 @@ class AuthApi {
     int domainType = 1,
   }) async {
     try {
-      final response = await _dio.post('/api/Auth/register', data: {
+      final response = await _dio.post('/api/auth/register', data: {
         'email': email,
         'password': password,
         'fullName': fullName,
@@ -42,11 +42,11 @@ class AuthApi {
     }
   }
 
-  /// GET /api/Auth/me - utilise le JWT en mémoire (intercepteur).
+  /// GET /api/auth/me - utilise le JWT en mémoire (intercepteur).
   /// Permet de valider qu'un token sauvegardé est encore actif au démarrage.
   Future<UserProfile> me() async {
     try {
-      final response = await _dio.get('/api/Auth/me');
+      final response = await _dio.get('/api/auth/me');
       return UserProfile.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw _toReadable(e);

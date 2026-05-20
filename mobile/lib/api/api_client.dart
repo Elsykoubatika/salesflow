@@ -12,7 +12,9 @@ import '../auth/secure_storage.dart';
 /// On utilise HTTP (port 5000) en dev pour éviter les problèmes de certificat
 /// auto-signé HTTPS sur mobile. Production : passer à HTTPS via reverse proxy.
 class ApiConfig {
-  static const String baseUrl = 'http://192.168.1.68:5000';
+  // Par défaut : émulateur Android
+  // À adapter selon votre configuration
+  static const String baseUrl = 'http://10.0.2.2:5000';
 }
 
 /// Singleton Dio configuré : baseUrl, timeouts, ajout automatique du JWT.
@@ -29,9 +31,9 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // N'attache pas le token aux endpoints publics
-          final isPublic = options.path.contains('/api/Auth/login') ||
-              options.path.contains('/api/Auth/register') ||
-              options.path.contains('/api/Health');
+          final isPublic = options.path.contains('/api/auth/login') ||
+              options.path.contains('/api/auth/register') ||
+              options.path.contains('/api/health');
           if (!isPublic) {
             final token = await SecureStorage.getToken();
             if (token != null) {
