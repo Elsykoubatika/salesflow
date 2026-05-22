@@ -3,7 +3,7 @@ import 'features/technical/technical_quote_form.dart';
 import 'features/liberal/project_management_screen.dart';
 import 'features/liberal/finance_management_screen.dart';
 
-/// DealFlow Pro Congo - Complete Navigation
+/// DealFlow Pro - Complete Navigation
 /// Integrates Commerce, Technical, and Liberal modules
 
 class DealFlowNavigation {
@@ -142,7 +142,7 @@ class _DealFlowHomeScreenState extends State<DealFlowHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DealFlow Pro Congo'),
+        title: const Text('DealFlow Pro'),
         centerTitle: false,
         elevation: 0,
       ),

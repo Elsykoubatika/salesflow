@@ -10,13 +10,12 @@ import '../features/proofs/proofs_list_screen.dart';
 import '../features/sales/sales_list_screen.dart';
 import '../theme.dart';
 
-// ─── Modules Technique & Libéral (écrans stub si pas encore créés) ───────────
-// Remplacez ces imports quand les vrais écrans existent
-// import '../features/technical/technical_quote_form.dart';
-// import '../features/technical/technical_invoice_screen.dart';
-// import '../features/liberal/liberal_pipeline_screen.dart';
-// import '../features/liberal/project_management_screen.dart';
-// import '../features/liberal/finance_management_screen.dart';
+// ─── Modules Technique & Libéral ─────────────────────────────────────────────
+import '../features/technical/technical_quote_form.dart';
+import '../features/technical/technical_invoice_screen.dart';
+import '../features/liberal/liberal_pipeline_screen.dart';
+import '../features/liberal/project_management_screen.dart';
+import '../features/liberal/finance_management_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -104,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                       title: 'Devis Tech',
                       subtitle: 'Calculs intelligents',
                       color: const Color(0xFF00838F),
-                      onTap: () => _comingSoon(context, 'Devis Technique'),
+                      onTap: () => _push(context, const TechnicalQuoteFormScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.build_rounded,
@@ -125,7 +124,7 @@ class HomeScreen extends StatelessWidget {
                       title: 'Factures Tech',
                       subtitle: 'Durée × Tarif + Matériaux',
                       color: const Color(0xFF0D6B4F),
-                      onTap: () => _comingSoon(context, 'Factures Techniques'),
+                      onTap: () => _push(context, const TechnicalInvoiceScreen()),
                     ),
                   ],
                 ),
@@ -146,7 +145,7 @@ class HomeScreen extends StatelessWidget {
                       title: 'Pipeline',
                       subtitle: 'Prospects → Contrats',
                       color: const Color(0xFF5E35B1),
-                      onTap: () => _comingSoon(context, 'Pipeline Clients'),
+                      onTap: () => _push(context, const LiberalPipelineScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.handshake_rounded,
@@ -160,14 +159,14 @@ class HomeScreen extends StatelessWidget {
                       title: 'Projets',
                       subtitle: 'Gestion A-Z + PDF',
                       color: const Color(0xFF6A1B9A),
-                      onTap: () => _comingSoon(context, 'Gestion Projets'),
+                      onTap: () => _push(context, const ProjectManagementScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.account_balance_wallet_rounded,
                       title: 'Finances',
                       subtitle: 'Perso & Famille',
                       color: const Color(0xFF7B1FA2),
-                      onTap: () => _comingSoon(context, 'Finances'),
+                      onTap: () => _push(context, const FinanceManagementScreen()),
                     ),
                   ],
                 ),
@@ -179,7 +178,7 @@ class HomeScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 24),
                     child: Text(
-                      'DealFlow Pro Congo · v1.0',
+                      'DealFlow Pro · v1.0',
                       style: TextStyle(
                         color: AppTheme.textMuted.withValues(alpha: 0.5),
                         fontSize: 11,
@@ -287,7 +286,7 @@ class _HeroHeader extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'PRO CONGO',
+                        'PRO',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 9,

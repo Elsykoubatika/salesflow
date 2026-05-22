@@ -104,7 +104,7 @@ class _HeroPanel extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                'SalesFlow',
+                'DealFlow',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 34,
@@ -115,7 +115,7 @@ class _HeroPanel extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'PRO CONGO',
+                'PRO',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 13,

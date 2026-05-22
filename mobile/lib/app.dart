@@ -16,7 +16,7 @@ class DealFlowApp extends StatelessWidget {
     return BlocProvider(
       create: (_) => AuthCubit(),
       child: MaterialApp(
-        title: 'DealFlow Pro Congo',
+        title: 'DealFlow Pro',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         home: BlocBuilder<AuthCubit, AuthState>(

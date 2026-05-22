@@ -39,6 +39,7 @@ class _ProjectManagementScreenState extends State<ProjectManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar:
           AppBar(title: const Text('Gestion de Projets'), centerTitle: false),
@@ -91,7 +92,8 @@ class _ProjectManagementScreenState extends State<ProjectManagementScreen> {
                       minHeight: 6,
                       backgroundColor:
                           AppTheme.forestGreen.withValues(alpha: 0.1),
-                      valueColor: AlwaysStoppedAnimation(AppTheme.forestGreen),
+                      valueColor:
+                          const AlwaysStoppedAnimation(AppTheme.forestGreen),
                     ),
                   ),
                   const SizedBox(height: 8),
