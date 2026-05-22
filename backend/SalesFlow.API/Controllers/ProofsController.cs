@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SalesFlow.Application.Proofs.DTOs;
@@ -10,125 +9,222 @@ namespace SalesFlow.API.Controllers;
 [ApiController]
 [Route("api/proofs")]
 [Authorize]
+[Tags("Proofs")]
+[Produces("application/json")]
 public class ProofsController : ControllerBase
 {
     private readonly IProofService _service;
-
+    private const int MaxImageSizeBytes = 5 * 1024 * 1024; // 5 MB
     public ProofsController(IProofService service)
     {
         _service = service;
     }
 
-    /// <summary>Liste paginée des preuves. Filtres optionnels par statut, client, commande.</summary>
+    /// <summary>
+    /// Liste paginée des preuves avec filtres optionnels.
+    /// Exclut les données d'image pour la performance.
+    /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(ProofListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        [FromQuery] ProofStatus? status = null,
+        [FromQuery] string? status = null,
         [FromQuery] Guid? clientId = null,
         [FromQuery] Guid? salesOrderId = null,
         CancellationToken ct = default)
     {
-        var result = await _service.ListAsync(page, pageSize, status, clientId, salesOrderId, ct);
-        return result.IsSuccess ? Ok(result.Value) : BadRequest(new { error = result.Error });
-    }
+        // ✅ Convertir string status en enum
+        ProofStatus? proofStatus = null;
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            if (Enum.TryParse<ProofStatus>(status, ignoreCase: true, out var parsed))
+                proofStatus = parsed;
+            else
+                return BadRequest(new { error = $"Statut invalide : {status}. Utilisez : Pending, Validated, Error." });
+        }
 
-    /// <summary>Métadonnées d'une preuve (sans l'image).</summary>
-    [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ProofResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
-    {
-        var result = await _service.GetByIdAsync(id, ct);
-        return result.IsSuccess ? Ok(result.Value) : NotFound(new { error = result.Error });
-    }
+        var result = await _service.ListAsync(page, pageSize, proofStatus, clientId, salesOrderId, ct);
 
-    /// <summary>Téléchargement de l'image binaire de la preuve.</summary>
-    [HttpGet("{id:guid}/image")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetImage(Guid id, CancellationToken ct)
-    {
-        var result = await _service.GetImageAsync(id, ct);
-        if (!result.IsSuccess) return NotFound(new { error = result.Error });
-
-        return File(result.Value!.Bytes, result.Value!.ContentType);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(new { error = result.Error });
     }
 
     /// <summary>
-    /// Upload d'une preuve. Multipart/form-data avec :
-    /// - file : l'image (champ "file")
-    /// - data : JSON des métadonnées (champ "data")
+    /// Récupère les métadonnées d'une preuve (sans l'image).
+    /// Pour obtenir l'image, utilisez GET /api/proofs/{id}/image
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(ProofResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct = default)
+    {
+        var result = await _service.GetByIdAsync(id, ct);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : NotFound(new { error = result.Error });
+    }
+
+    /// <summary>
+    /// Télécharge l'image d'une preuve (JPEG, PNG, ou WebP).
+    /// Retourne le fichier binaire avec le bon Content-Type.
+    /// </summary>
+    [HttpGet("{id:guid}/image")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("image/jpeg", "image/png", "image/webp")]
+    public async Task<IActionResult> GetImage(Guid id, CancellationToken ct = default)
+    {
+        var result = await _service.GetImageAsync(id, ct);
+
+        if (!result.IsSuccess)
+        {
+            return result.Error!.Contains("introuvable")
+                ? NotFound(new { error = result.Error })
+                : BadRequest(new { error = result.Error });
+        }
+
+        var (imageBytes, contentType) = (result.Value!.ImageBytes, result.Value!.ContentType);
+
+        return File(imageBytes, contentType, $"proof-{id}.{GetImageExtension(contentType)}");
+    }
+
+    /// <summary>
+    /// Upload une nouvelle preuve de paiement avec image.
+    /// 
+    /// Body (multipart/form-data):
+    /// - image: fichier image (JPEG/PNG/WebP, max 5 MB) - REQUIS
+    /// - amount: montant de la transaction (decimal) - OPTIONNEL
+    /// - currency: devise (ex: XAF) - OPTIONNEL (défaut: XAF)
+    /// - transactionReference: numéro de transaction - OPTIONNEL
+    /// - operator: opérateur mobile money (0=Other, 1=MTN, 2=Airtel) - OPTIONNEL
+    /// - transactionDate: date de la transaction (datetime) - OPTIONNEL
+    /// - notes: notes supplémentaires - OPTIONNEL
+    /// - clientId: ID du client associé - OPTIONNEL
+    /// - salesOrderId: ID de la commande associée - OPTIONNEL
     /// </summary>
     [HttpPost]
-    [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ProofResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [RequestSizeLimit(10 * 1024 * 1024)] // 10 MB max au niveau HTTP
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> Upload(
-        [FromForm] UploadProofForm form,
-        CancellationToken ct)
+    IFormFile image,                                  // ✅ PAS de [FromForm] ici!
+    [FromForm] decimal? amount = null,
+    [FromForm] string? currency = null,
+    [FromForm] string? transactionReference = null,
+    [FromForm] int? @operator = null,
+    [FromForm] DateTime? transactionDate = null,
+    [FromForm] string? notes = null,
+    [FromForm] Guid? clientId = null,
+    [FromForm] Guid? salesOrderId = null,
+    CancellationToken ct = default)
     {
-        if (form.File is null || form.File.Length == 0)
-            return BadRequest(new { error = "Fichier image manquant ou vide." });
+        // ✅ Validation: image requise
+        if (image == null || image.Length == 0)
+            return BadRequest(new { error = "Image requise." });
 
-        if (string.IsNullOrWhiteSpace(form.Data))
-            return BadRequest(new { error = "Métadonnées manquantes." });
-
-        // Désérialiser les métadonnées JSON
-        CreateProofRequest request;
-        try
-        {
-            request = JsonSerializer.Deserialize<CreateProofRequest>(form.Data, new JsonSerializerOptions
+        // ✅ Validation: taille max
+        if (image.Length > MaxImageSizeBytes)
+            return StatusCode(StatusCodes.Status413PayloadTooLarge, new
             {
-                PropertyNameCaseInsensitive = true
-            }) ?? throw new InvalidOperationException("Métadonnées invalides.");
-        }
-        catch (JsonException ex)
+                error = $"Image trop grande. Maximum {MaxImageSizeBytes / (1024 * 1024)} MB. Reçu: {Math.Round(image.Length / 1024.0 / 1024.0, 2)} MB."
+            });
+
+        // ✅ Validation: format accepté
+        var allowedContentTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/webp" };
+        if (!allowedContentTypes.Contains(image.ContentType?.ToLowerInvariant()))
+            return BadRequest(new { error = $"Format non supporté: {image.ContentType}. Utilisez JPEG, PNG ou WebP." });
+
+        // ✅ Lire les bytes de l'image
+        using var memoryStream = new MemoryStream();
+        await image.CopyToAsync(memoryStream, ct);
+        var imageBytes = memoryStream.ToArray();
+
+        // ✅ Valider l'opérateur si fourni
+        MobileMoneyOperator? parsedOperator = null;
+        if (@operator.HasValue)
         {
-            return BadRequest(new { error = $"JSON invalide : {ex.Message}" });
+            if (!Enum.IsDefined(typeof(MobileMoneyOperator), @operator.Value))
+                return BadRequest(new { error = "Opérateur invalide. Utilisez: 0 (Other), 1 (MTN), 2 (Airtel)." });
+
+            parsedOperator = (MobileMoneyOperator)@operator.Value;
         }
 
-        // Lire le fichier en mémoire
-        using var ms = new MemoryStream();
-        await form.File.CopyToAsync(ms, ct);
-        var bytes = ms.ToArray();
+        // ✅ Créer la requête de service
+        var request = new CreateProofRequest(
+            amount,
+            currency,
+            transactionReference,
+            parsedOperator ?? MobileMoneyOperator.Other,
+            transactionDate,
+            notes,
+            clientId,
+            salesOrderId
+        );
 
-        var result = await _service.CreateAsync(request, bytes, form.File.ContentType, ct);
-        if (!result.IsSuccess) return BadRequest(new { error = result.Error });
+        // ✅ Appeler le service
+        var result = await _service.UploadAsync(request, imageBytes, image.ContentType!, ct);
+
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
 
         return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
 
-    /// <summary>DTO multipart pour upload d'une preuve. Regroupé dans une classe pour Swashbuckle.</summary>
-    public class UploadProofForm
-    {
-        /// <summary>Image de la preuve (JPEG, PNG, WebP, max 5 MB).</summary>
-        public IFormFile File { get; set; } = null!;
-
-        /// <summary>JSON sérialisé des métadonnées (CreateProofRequest).</summary>
-        public string Data { get; set; } = string.Empty;
-    }
-
-
+    /// <summary>
+    /// Modifie les métadonnées d'une preuve (statut, montant, notes, etc.).
+    /// NOTE: L'image ne peut pas être modifiée après upload. Supprimez et re-uploadez si nécessaire.
+    /// </summary>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ProofResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProofRequest request, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Update(
+        Guid id,
+        [FromBody] UpdateProofRequest request,
+        CancellationToken ct = default)
     {
         var result = await _service.UpdateAsync(id, request, ct);
-        if (result.IsSuccess) return Ok(result.Value);
-        return result.Error!.Contains("introuvable") ? NotFound(new { error = result.Error }) : BadRequest(new { error = result.Error });
+
+        if (!result.IsSuccess)
+        {
+            return result.Error!.Contains("introuvable")
+                ? NotFound(new { error = result.Error })
+                : BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
     }
 
+    /// <summary>
+    /// Supprime une preuve (image + toutes les métadonnées).
+    /// Cette opération est irréversible.
+    /// </summary>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
         var result = await _service.DeleteAsync(id, ct);
-        return result.IsSuccess ? NoContent() : NotFound(new { error = result.Error });
+
+        if (!result.IsSuccess)
+            return NotFound(new { error = result.Error });
+
+        return NoContent();
     }
+
+    /// <summary>Helper pour obtenir l'extension de fichier basée sur le content-type.</summary>
+    private static string GetImageExtension(string contentType) => contentType?.ToLowerInvariant() switch
+    {
+        "image/jpeg" or "image/jpg" => "jpg",
+        "image/png" => "png",
+        "image/webp" => "webp",
+        _ => "jpg"
+    };
 }

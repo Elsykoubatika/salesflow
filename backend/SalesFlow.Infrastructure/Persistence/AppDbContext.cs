@@ -21,6 +21,7 @@ public class AppDbContext : DbContext, IAppDbContext
 
     // ─── TECHNICAL MODULE ────────────────────────────────────────────────────
     public DbSet<TechnicalQuote> TechnicalQuotes => Set<TechnicalQuote>();
+    public DbSet<TechnicalQuoteItem> TechnicalQuoteItems => Set<TechnicalQuoteItem>();
     public DbSet<TechnicalIntervention> TechnicalInterventions => Set<TechnicalIntervention>();
     public DbSet<TechnicalChecklistItem> TechnicalChecklistItems => Set<TechnicalChecklistItem>();
     public DbSet<TechnicalInvoice> TechnicalInvoices => Set<TechnicalInvoice>();

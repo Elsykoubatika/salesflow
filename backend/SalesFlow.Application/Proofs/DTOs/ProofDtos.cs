@@ -60,3 +60,8 @@ public record ProofListResponse(
     int PageSize,
     int PendingCount
 );
+
+public record ProofImage(
+    byte[] ImageBytes,
+    string ContentType
+);

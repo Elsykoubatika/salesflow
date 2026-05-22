@@ -1,230 +1,79 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SalesFlow.Application.Common.Interfaces;
-using SalesFlow.Application.Common.Security;
-using SalesFlow.Domain.Entities;
+using SalesFlow.Application.Technical.DTOs;
+using SalesFlow.Application.Technical.Services;
 
 namespace SalesFlow.API.Controllers;
 
 [ApiController]
 [Route("api/technical/quotes")]
 [Authorize]
+[Tags("Technical Quotes")]
 public class TechnicalQuotesController : ControllerBase
 {
-    private readonly IAppDbContext _db;
-    private readonly ICurrentUser _currentUser;
+    private readonly ITechnicalQuoteService _service;
 
-    public TechnicalQuotesController(IAppDbContext db, ICurrentUser currentUser)
+    public TechnicalQuotesController(ITechnicalQuoteService service)
     {
-        _db = db;
-        _currentUser = currentUser;
+        _service = service;
     }
 
     [HttpGet]
-    public async Task<ActionResult> List([FromQuery] string? status = null, [FromQuery] int page = 1)
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? status = null,
+        CancellationToken ct = default)
     {
-        var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-
-        IQueryable<TechnicalQuote> query = _db.TechnicalQuotes
-            .Where(q => q.UserId == userId)
-            .Include(q => q.Items);
-
-        if (!string.IsNullOrEmpty(status))
-            query = query.Where(q => q.Status == status);
-
-        var total = await query.CountAsync();
-        var items = await query
-            .OrderByDescending(q => q.CreatedOn)
-            .Skip((page - 1) * 20)
-            .Take(20)
-            .Select(q => new
-            {
-                q.Id,
-                q.QuoteNumber,
-                q.Title,
-                q.Total,
-                q.Status,
-                itemCount = q.Items.Count,
-            })
-            .ToListAsync();
-
-        return Ok(new { items, total });
+        var result = await _service.ListAsync(page, pageSize, status, ct);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(new { error = result.Error });
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct = default)
     {
-        var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-
-        var quote = await _db.TechnicalQuotes
-            .Where(q => q.Id == id && q.UserId == userId)
-            .Include(q => q.Items)
-            .FirstOrDefaultAsync();
-
-        if (quote == null) return NotFound();
-
-        return Ok(new
-        {
-            quote.Id,
-            quote.QuoteNumber,
-            quote.Title,
-            quote.Description,
-            quote.EstimatedHours,
-            quote.HourlyRate,
-            quote.MaterialsCost,
-            quote.Total,
-            quote.Currency,
-            quote.ValidUntil,
-            quote.Status,
-            items = quote.Items.Select(i => new
-            {
-                i.Id,
-                i.ItemName,
-                i.Quantity,
-                i.UnitPrice,
-                i.Total,
-            }).ToList(),
-        });
+        var result = await _service.GetByIdAsync(id, ct);
+        return result.IsSuccess ? Ok(result.Value) : NotFound(new { error = result.Error });
     }
 
     [HttpPost]
-    public async Task<ActionResult> Create([FromBody] CreateTechnicalQuoteRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateTechnicalQuoteRequest request, CancellationToken ct = default)
     {
-        var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-
-        var estimatedHours = (decimal)(request.EstimatedHours ?? 0);
-        var hourlyRate = request.HourlyRate ?? 50_000m;
-        var laborCost = estimatedHours * hourlyRate;
-        var total = laborCost + (request.MaterialsCost ?? 0m);
-
-        var quote = new TechnicalQuote
-        {
-            UserId = userId,
-            ClientId = request.ClientId,
-            QuoteNumber = $"DEVIS-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 6)}",
-            Title = request.Title ?? string.Empty,
-            Description = request.Description ?? string.Empty,
-            ServiceLocation = request.ServiceLocation ?? string.Empty,
-            EstimatedHours = estimatedHours,
-            HourlyRate = hourlyRate,
-            MaterialsCost = request.MaterialsCost ?? 0m,
-            LaborCost = laborCost,
-            Total = total,
-            Currency = "XAF",
-            ValidUntil = request.ValidUntil,
-            Status = "Draft",
-        };
-
-        _db.TechnicalQuotes.Add(quote);
-        await _db.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetById), new { id = quote.Id }, quote);
+        var result = await _service.CreateAsync(request, ct);
+        if (!result.IsSuccess) return BadRequest(new { error = result.Error });
+        return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
 
     [HttpPost("{id:guid}/items")]
-    public async Task<ActionResult> AddItem(Guid id, [FromBody] AddQuoteItemRequest request)
+    public async Task<IActionResult> AddItem(Guid id, [FromBody] CreateTechnicalQuoteItemRequest request, CancellationToken ct = default)
     {
-        var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-        var quote = await _db.TechnicalQuotes
-            .FirstOrDefaultAsync(q => q.Id == id && q.UserId == userId);
-
-        if (quote == null) return NotFound();
-
-        var item = new TechnicalQuoteItem
-        {
-            TechnicalQuoteId = id,
-            ItemName = request.ItemName ?? string.Empty,
-            ItemType = request.ItemType ?? string.Empty,
-            Quantity = request.Quantity,
-            UnitPrice = request.UnitPrice,
-            Unit = request.Unit ?? "pcs",
-        };
-
-        quote.Items.Add(item);
-
-        // Recalculate quote total
-        var newMaterialsCost = quote.Items.Sum(i => i.Total);
-        quote.MaterialsCost = newMaterialsCost;
-        quote.Total = quote.LaborCost + newMaterialsCost;
-
-        await _db.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetById), new { id = quote.Id }, item);
+        //var itemRequest = request with { QuoteId = id };
+        var result = await _service.AddItemAsync(id, request, ct);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(new { error = result.Error });
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Update(Guid id, [FromBody] UpdateTechnicalQuoteRequest request)
+    [HttpPatch("{id:guid}/send")]
+    public async Task<IActionResult> Send(Guid id, CancellationToken ct = default)
     {
-        var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-        var quote = await _db.TechnicalQuotes
-            .FirstOrDefaultAsync(q => q.Id == id && q.UserId == userId);
-
-        if (quote == null) return NotFound();
-
-        if (request.Title != null) quote.Title = request.Title;
-        if (request.Description != null) quote.Description = request.Description;
-        if (request.ValidUntil.HasValue) quote.ValidUntil = request.ValidUntil;
-
-        // Recalculate total if hours or rate changed
-        if (request.EstimatedHours.HasValue || request.HourlyRate.HasValue)
-        {
-            var hours = request.EstimatedHours ?? quote.EstimatedHours;
-            var rate = request.HourlyRate ?? quote.HourlyRate;
-            var laborCost = (decimal)hours * rate;
-            quote.LaborCost = laborCost;
-            quote.Total = laborCost + quote.MaterialsCost;
-        }
-
-        await _db.SaveChangesAsync();
-        return Ok(quote);
+        var result = await _service.SendAsync(id, ct);
+        if (!result.IsSuccess)
+            return result.Error!.Contains("introuvable") ? NotFound(new { error = result.Error }) : BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
-    [HttpPatch("{id:guid}/status")]
-    public async Task<ActionResult> UpdateStatus(Guid id, [FromBody] UpdateQuoteStatusRequest request)
+    [HttpPatch("{id:guid}/accept")]
+    public async Task<IActionResult> Accept(Guid id, CancellationToken ct = default)
     {
-        var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
-        var quote = await _db.TechnicalQuotes
-            .FirstOrDefaultAsync(q => q.Id == id && q.UserId == userId);
+        var result = await _service.AcceptAsync(id, ct);
+        if (!result.IsSuccess)
+            return result.Error!.Contains("introuvable") ? NotFound(new { error = result.Error }) : BadRequest(new { error = result.Error });
+        return Ok(result.Value);
+    }
 
-        if (quote == null) return NotFound();
-
-        quote.Status = request.Status;
-        if (request.Status == "Sent")
-            quote.SentAt = DateTime.UtcNow;
-        else if (request.Status == "Accepted")
-            quote.AcceptedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        return Ok(quote);
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
+    {
+        var result = await _service.DeleteAsync(id, ct);
+        return result.IsSuccess ? NoContent() : NotFound(new { error = result.Error });
     }
 }
-
-public record CreateTechnicalQuoteRequest(
-    Guid ClientId,
-    string? Title,
-    string? Description,
-    string? ServiceLocation,
-    double? EstimatedHours,
-    decimal? HourlyRate,
-    decimal? MaterialsCost,
-    DateTime? ValidUntil
-);
-
-public record AddQuoteItemRequest(
-    string? ItemName,
-    string? ItemType,
-    decimal Quantity,
-    decimal UnitPrice,
-    string? Unit
-);
-
-public record UpdateTechnicalQuoteRequest(
-    string? Title,
-    string? Description,
-    decimal? EstimatedHours,
-    decimal? HourlyRate,
-    DateTime? ValidUntil
-);
-
-public record UpdateQuoteStatusRequest(string Status);

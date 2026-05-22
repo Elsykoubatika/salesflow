@@ -37,6 +37,7 @@ public interface IAppDbContext
     DbSet<FinanceAccount> FinanceAccounts { get; }
     DbSet<FinanceTransaction> FinanceTransactions { get; }
     DbSet<FinanceBudget> FinanceBudgets { get; }
+    DbSet<TechnicalQuoteItem> TechnicalQuoteItems { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
