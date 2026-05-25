@@ -1,515 +1,597 @@
 import 'package:flutter/material.dart';
-import '../../theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class _Invoice {
-  final String number;
-  final String client;
-  final String date;
-  final String dueDate;
-  final double hours;
-  final int hourlyRate;
-  final int materials;
-  final int advance;
-  final int total;
-  final int paid;
-  final String status;
-  final int daysOverdue;
-  final String paymentMethod;
-  final String mobileRef;
+import '../clients/client_model.dart';
+import '../liberal/client_picker.dart';
+import 'invoice_api.dart';
+import 'invoice_cubit.dart';
+import 'invoice_model.dart';
+import 'tech_shared.dart';
 
-  const _Invoice({
-    required this.number,
-    required this.client,
-    required this.date,
-    required this.dueDate,
-    required this.hours,
-    required this.hourlyRate,
-    required this.materials,
-    required this.advance,
-    required this.total,
-    required this.paid,
-    required this.status,
-    required this.daysOverdue,
-    required this.paymentMethod,
-    required this.mobileRef,
-  });
-}
+const Color _kTech = Color(0xFF0D6B4F);
 
-class TechnicalInvoiceScreen extends StatefulWidget {
+class TechnicalInvoiceScreen extends StatelessWidget {
   const TechnicalInvoiceScreen({super.key});
 
   @override
-  State<TechnicalInvoiceScreen> createState() => _TechnicalInvoiceScreenState();
-}
-
-class _TechnicalInvoiceScreenState extends State<TechnicalInvoiceScreen> {
-  static const List<_Invoice> _invoices = [
-    _Invoice(
-      number: 'FT-2024-001',
-      client: 'ECAB Sarl',
-      date: '15/05/2024',
-      dueDate: '20/06/2024',
-      hours: 8.5,
-      hourlyRate: 35000,
-      materials: 145000,
-      advance: 50000,
-      total: 295500,
-      paid: 0,
-      status: 'Overdue',
-      daysOverdue: 12,
-      paymentMethod: 'MobileMoney',
-      mobileRef: 'MTN-2024-001',
-    ),
-    _Invoice(
-      number: 'FT-2024-002',
-      client: 'Impact Group',
-      date: '12/05/2024',
-      dueDate: '10/06/2024',
-      hours: 5.0,
-      hourlyRate: 40000,
-      materials: 75000,
-      advance: 100000,
-      total: 275000,
-      paid: 175000,
-      status: 'PartiallyPaid',
-      daysOverdue: 0,
-      paymentMethod: 'MobileMoney',
-      mobileRef: 'AIRTEL-2024-003',
-    ),
-    _Invoice(
-      number: 'FT-2024-003',
-      client: 'TradeHub Congo',
-      date: '18/05/2024',
-      dueDate: '18/06/2024',
-      hours: 12.0,
-      hourlyRate: 30000,
-      materials: 250000,
-      advance: 200000,
-      total: 610000,
-      paid: 610000,
-      status: 'Paid',
-      daysOverdue: 0,
-      paymentMethod: 'Bank',
-      mobileRef: 'BANK-2024-005',
-    ),
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final overdueCount = _invoices.where((inv) => inv.status == 'Overdue').length;
-    final totalFacture = _invoices.fold<int>(0, (sum, inv) => sum + inv.total);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Factures Techniques'),
-        centerTitle: false,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: _SummaryCard(
-                    label: 'Total facturé',
-                    value: '${totalFacture ~/ 1000}k',
-                    color: AppTheme.forestGreen,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _SummaryCard(
-                    label: 'Impayés',
-                    value: overdueCount.toString(),
-                    color: Colors.red.shade700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Factures (${_invoices.length})',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            ..._invoices.map((inv) => _InvoiceCard(invoice: inv)),
-          ],
-        ),
-      ),
+    return BlocProvider(
+      create: (_) => InvoiceCubit()..load(),
+      child: const _InvoicesView(),
     );
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _SummaryCard({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+class _InvoicesView extends StatelessWidget {
+  const _InvoicesView();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Factures Tech')),
+      floatingActionButton: Builder(
+        builder: (ctx) => FloatingActionButton.extended(
+          backgroundColor: _kTech,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text('Nouvelle', style: TextStyle(color: Colors.white)),
+          onPressed: () => _openCreate(ctx),
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
+      body: BlocBuilder<InvoiceCubit, InvoiceState>(
+        builder: (context, state) {
+          if (state is InvoiceLoading || state is InvoiceInitial) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state is InvoiceError) {
+            return TechErrorView(
+              message: state.message,
+              color: _kTech,
+              onRetry: () => context.read<InvoiceCubit>().load(),
+            );
+          }
+          if (state is InvoiceLoaded) {
+            if (state.items.isEmpty) {
+              return const TechEmptyView(
+                  icon: Icons.description_rounded, title: 'Aucune facture');
+            }
+            return RefreshIndicator(
+              onRefresh: () => context.read<InvoiceCubit>().refresh(),
+              child: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                itemCount: state.items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (_, i) => _InvoiceCard(
+                  invoice: state.items[i],
+                  onTap: () => _openDetail(context, state.items[i].id),
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
+    );
+  }
+
+  Future<void> _openDetail(BuildContext context, String id) async {
+    final cubit = context.read<InvoiceCubit>();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => InvoiceDetailScreen(invoiceId: id)),
+    );
+    cubit.refresh();
+  }
+
+  void _openCreate(BuildContext context) {
+    final cubit = context.read<InvoiceCubit>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _CreateInvoiceSheet(cubit: cubit),
     );
   }
 }
 
 class _InvoiceCard extends StatelessWidget {
-  final _Invoice invoice;
-
-  const _InvoiceCard({required this.invoice});
+  final InvoiceItem invoice;
+  final VoidCallback onTap;
+  const _InvoiceCard({required this.invoice, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(invoice.status);
-    final remaining = invoice.total - invoice.paid;
-    final laborCost = (invoice.hours * invoice.hourlyRate).toInt();
-    final subtotal = laborCost + invoice.materials;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      elevation: 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    invoice.number,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
+                  Expanded(
+                    child: Text(invoice.invoiceNumber,
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w700)),
                   ),
+                  TechStatusChip(status: invoice.status),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(invoice.clientName,
+                  style:
+                      TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Total : ${techMoney(invoice.total)}',
+                      style: TextStyle(
+                          fontSize: 12, color: Colors.grey.shade600)),
                   Text(
-                    invoice.client,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textMuted,
+                    'Reste : ${techMoney(invoice.amountDue)}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: invoice.amountDue > 0
+                          ? const Color(0xFFF57C00)
+                          : const Color(0xFF2E7D32),
                     ),
                   ),
                 ],
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                invoice.status == 'Overdue' ? 'EN RETARD' : invoice.status,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: statusColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        subtitle: Text(
-          '${invoice.total ~/ 1000}k XAF',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: statusColor,
-            fontSize: 13,
+            ],
           ),
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _BreakdownRow(
-                  'Durée',
-                  '${invoice.hours} h @ ${invoice.hourlyRate ~/ 1000}k/h',
-                  laborCost,
-                ),
-                _BreakdownRow('Matériaux', '', invoice.materials),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Divider(color: AppTheme.textMuted, height: 1),
-                ),
-                _BreakdownRow('Sous-total', '', subtotal),
-                _BreakdownRow(
-                  'Acompte',
-                  '- ${invoice.advance} XAF',
-                  -invoice.advance,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'TOTAL DÛ',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
-                    Text(
-                      '${invoice.total ~/ 1000}k XAF',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: AppTheme.forestGreen,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+      ),
+    );
+  }
+}
 
-                // Payment progress
-                Column(
+// ─── Détail ────────────────────────────────────────────────────────────────────
+
+class InvoiceDetailScreen extends StatefulWidget {
+  final String invoiceId;
+  const InvoiceDetailScreen({super.key, required this.invoiceId});
+
+  @override
+  State<InvoiceDetailScreen> createState() => _InvoiceDetailScreenState();
+}
+
+class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
+  final _api = InvoiceApi();
+  late Future<InvoiceDetail> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _api.getById(widget.invoiceId);
+  }
+
+  void _reload() {
+    setState(() => _future = _api.getById(widget.invoiceId));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Détail facture')),
+      body: FutureBuilder<InvoiceDetail>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return TechErrorView(
+              message: techError(snapshot.error!),
+              color: _kTech,
+              onRetry: _reload,
+            );
+          }
+          final inv = snapshot.data!;
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                      colors: [_kTech, Color(0xFF004D40)]),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Paiement',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '${invoice.paid * 100 ~/ invoice.total}% complété',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: invoice.paid.toDouble() / invoice.total,
-                        minHeight: 8,
-                        backgroundColor:
-                            AppTheme.forestGreen.withValues(alpha: 0.2),
-                        color: AppTheme.forestGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Payé: ${invoice.paid ~/ 1000}k',
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                        Text(
-                          'Restant: ${remaining ~/ 1000}k',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: statusColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Overdue reminder
-                if (invoice.status == 'Overdue')
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: Colors.red.shade200),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.warning_amber_rounded,
-                              color: Colors.red.shade700,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'EN RETARD depuis ${invoice.daysOverdue} jours',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.red.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Rappel envoyé via Email',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.red.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                const SizedBox(height: 16),
-
-                // Payment method
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.forestGreen.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Méthode paiement',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textMuted,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        invoice.paymentMethod,
+                    Text(inv.invoiceNumber,
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (invoice.paymentMethod == 'MobileMoney') ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Réf: ${invoice.mobileRef}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Actions
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => ScaffoldMessenger.of(context)
-                            .showSnackBar(
-                              const SnackBar(content: Text('PDF généré')),
-                            ),
-                        icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
-                        label: const Text('PDF'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () => ScaffoldMessenger.of(context)
-                            .showSnackBar(
-                              const SnackBar(
-                                content: Text('Marquer comme payée'),
-                              ),
-                            ),
-                        icon: const Icon(Icons.check, size: 16),
-                        label: const Text('Paiement'),
-                      ),
-                    ),
+                            color: Colors.white,
+                            fontSize: 19,
+                            fontWeight: FontWeight.w800)),
+                    Text(inv.clientName,
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: 13)),
+                    const SizedBox(height: 10),
+                    Text('Reste à payer : ${techMoney(inv.amountDue)}',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800)),
                   ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+              const SizedBox(height: 16),
+              TechInfoTile(label: 'Statut', value: inv.status),
+              if (inv.serviceDescription != null &&
+                  inv.serviceDescription!.isNotEmpty)
+                TechInfoTile(
+                    label: 'Service', value: inv.serviceDescription!),
+              TechInfoTile(
+                  label: 'Heures', value: inv.actualHours.toStringAsFixed(1)),
+              TechInfoTile(
+                  label: 'Main d\'œuvre', value: techMoney(inv.laborCost)),
+              TechInfoTile(
+                  label: 'Matériaux', value: techMoney(inv.materialsCost)),
+              TechInfoTile(label: 'Total', value: techMoney(inv.total)),
+              TechInfoTile(
+                  label: 'Acompte', value: techMoney(inv.advancePayment)),
+              TechInfoTile(
+                  label: 'Échéance', value: techDate(inv.dueDate)),
+              if (inv.paidDate != null)
+                TechInfoTile(
+                    label: 'Payée le', value: techDate(inv.paidDate!)),
+              const SizedBox(height: 16),
+              if (inv.status != 'Paid' && inv.amountDue > 0)
+                FilledButton.icon(
+                  onPressed: () => _openPayment(inv),
+                  icon: const Icon(Icons.payments_rounded),
+                  label: const Text('Enregistrer un paiement'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF2E7D32),
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Color _getStatusColor(String status) => switch (status) {
-        'Paid' => Colors.green.shade700,
-        'PartiallyPaid' => Colors.amber.shade700,
-        'Overdue' => Colors.red.shade700,
-        _ => AppTheme.textMuted,
-      };
+  void _openPayment(InvoiceDetail inv) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _PaymentSheet(
+        api: _api,
+        invoiceId: inv.invoiceId,
+        amountDue: inv.amountDue,
+        onPaid: _reload,
+      ),
+    );
+  }
 }
 
-class _BreakdownRow extends StatelessWidget {
-  final String label;
-  final String detail;
-  final int amount;
+extension on InvoiceDetail {
+  String get invoiceId => id;
+}
 
-  const _BreakdownRow(this.label, this.detail, this.amount);
+// ─── Sheets ────────────────────────────────────────────────────────────────────
+
+class _CreateInvoiceSheet extends StatefulWidget {
+  final InvoiceCubit cubit;
+  const _CreateInvoiceSheet({required this.cubit});
+
+  @override
+  State<_CreateInvoiceSheet> createState() => _CreateInvoiceSheetState();
+}
+
+class _CreateInvoiceSheetState extends State<_CreateInvoiceSheet> {
+  final _formKey = GlobalKey<FormState>();
+  Client? _client;
+  final _desc = TextEditingController();
+  final _hours = TextEditingController();
+  final _rate = TextEditingController(text: '50000');
+  final _materials = TextEditingController(text: '0');
+  final _advance = TextEditingController(text: '0');
+  bool _saving = false;
+  String? _clientError;
+
+  @override
+  void dispose() {
+    _desc.dispose();
+    _hours.dispose();
+    _rate.dispose();
+    _materials.dispose();
+    _advance.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_client == null) {
+      setState(() => _clientError = 'Sélectionnez un client');
+      return;
+    }
+    setState(() => _saving = true);
+    try {
+      await widget.cubit.createInvoice(
+        clientId: _client!.id,
+        description: _desc.text.trim(),
+        actualHours: double.tryParse(_hours.text.trim()) ?? 0,
+        hourlyRate: double.tryParse(_rate.text.trim()) ?? 50000,
+        materialsCost: double.tryParse(_materials.text.trim()) ?? 0,
+        advancePayment: double.tryParse(_advance.text.trim()) ?? 0,
+      );
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(techError(e))));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
+      padding:
+          EdgeInsets.only(left: 20, right: 20, top: 20, bottom: bottomInset + 20),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12)),
-              if (detail.isNotEmpty)
-                Text(
-                  detail,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.textMuted,
-                  ),
+              const Text('Nouvelle facture',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 16),
+              ClientPickerField(
+                selected: _client,
+                onSelected: (c) => setState(() {
+                  _client = c;
+                  _clientError = null;
+                }),
+              ),
+              if (_clientError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, left: 4),
+                  child: Text(_clientError!,
+                      style:
+                          const TextStyle(color: Colors.red, fontSize: 12)),
                 ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _desc,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'Description du service *',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Requis' : null,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _hours,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Heures *',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _rate,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Taux/h',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _materials,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Matériaux',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _advance,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Acompte',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _saving ? null : _save,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: _kTech,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Créer la facture'),
+                ),
+              ),
             ],
           ),
-          Text(
-            '${amount ~/ 1000}k XAF',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+}
+
+class _PaymentSheet extends StatefulWidget {
+  final InvoiceApi api;
+  final String invoiceId;
+  final double amountDue;
+  final VoidCallback onPaid;
+
+  const _PaymentSheet({
+    required this.api,
+    required this.invoiceId,
+    required this.amountDue,
+    required this.onPaid,
+  });
+
+  @override
+  State<_PaymentSheet> createState() => _PaymentSheetState();
+}
+
+class _PaymentSheetState extends State<_PaymentSheet> {
+  static const _methods = ['Cash', 'MobileMoney', 'Bank', 'Card'];
+  late final TextEditingController _amount =
+      TextEditingController(text: widget.amountDue.toStringAsFixed(0));
+  final _reference = TextEditingController();
+  String _method = 'Cash';
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    _reference.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final amount = double.tryParse(_amount.text.trim());
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Montant invalide')),
+      );
+      return;
+    }
+    setState(() => _saving = true);
+    try {
+      await widget.api.recordPayment(
+        widget.invoiceId,
+        amount: amount,
+        paymentMethod: _method,
+        reference:
+            _reference.text.trim().isEmpty ? null : _reference.text.trim(),
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        widget.onPaid();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(techError(e))));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding:
+          EdgeInsets.only(left: 20, right: 20, top: 20, bottom: bottomInset + 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Enregistrer un paiement',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text('Reste dû : ${techMoney(widget.amountDue)}',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _amount,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Montant (XAF) *',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            initialValue: _method,
+            decoration: const InputDecoration(
+              labelText: 'Mode de paiement',
+              border: OutlineInputBorder(),
+            ),
+            items: _methods
+                .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                .toList(),
+            onChanged: (v) => setState(() => _method = v ?? 'Cash'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _reference,
+            decoration: const InputDecoration(
+              labelText: 'Référence (Mobile Money…)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _saving ? null : _save,
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF2E7D32),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              child: _saving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('Valider le paiement'),
+            ),
           ),
         ],
       ),

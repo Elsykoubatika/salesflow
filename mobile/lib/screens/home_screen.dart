@@ -13,7 +13,10 @@ import '../theme.dart';
 // ─── Modules Technique & Libéral ─────────────────────────────────────────────
 import '../features/technical/technical_quote_form.dart';
 import '../features/technical/technical_invoice_screen.dart';
+import '../features/technical/technical_intervention_screen.dart';
+import '../features/technical/technical_maintenance_screen.dart';
 import '../features/liberal/liberal_pipeline_screen.dart';
+import '../features/liberal/liberal_contracts_screen.dart';
 import '../features/liberal/project_management_screen.dart';
 import '../features/liberal/finance_management_screen.dart';
 
@@ -110,14 +113,16 @@ class HomeScreen extends StatelessWidget {
                       title: 'Interventions',
                       subtitle: 'Traçage chantier',
                       color: const Color(0xFF00695C),
-                      onTap: () => _comingSoon(context, 'Interventions'),
+                      onTap: () =>
+                          _push(context, const TechnicalInterventionsScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.checklist_rounded,
                       title: 'Maintenance',
                       subtitle: 'Checklist appareil',
                       color: const Color(0xFF2E7D32),
-                      onTap: () => _comingSoon(context, 'Maintenance'),
+                      onTap: () =>
+                          _push(context, const TechnicalMaintenanceScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.description_rounded,
@@ -152,7 +157,8 @@ class HomeScreen extends StatelessWidget {
                       title: 'Contrats',
                       subtitle: 'Honoraires & Récurrence',
                       color: const Color(0xFF4527A0),
-                      onTap: () => _comingSoon(context, 'Contrats'),
+                      onTap: () =>
+                          _push(context, const LiberalContractsScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.folder_special_rounded,

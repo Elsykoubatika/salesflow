@@ -56,6 +56,7 @@ public class TechnicalInterventionsController : ControllerBase
         var intervention = await _db.TechnicalInterventions
             .Where(i => i.Id == id && i.UserId == userId)
             .Include(i => i.Client)
+            .Include(i => i.ChecklistItems) // ✅ AJOUT : charge la checklist
             .FirstOrDefaultAsync();
 
         if (intervention == null) return NotFound();
@@ -67,11 +68,21 @@ public class TechnicalInterventionsController : ControllerBase
             intervention.Notes,
             intervention.StartTime,
             intervention.Status,
+            // ✅ AJOUT : la checklist est désormais renvoyée au client mobile
+            checklistItems = intervention.ChecklistItems
+                .OrderBy(c => c.CreatedAt)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Title,
+                    c.IsCompleted,
+                })
+                .ToList(),
         });
     }
 
     [HttpPost]
-    public async Task<ActionResult> Create([FromBody] CreateTechnicalInterventionRequest request)
+    public async Task<ActionResult> Create([FromBody] CreateInterventionRequest request)
     {
         var userId = _currentUser.UserId ?? throw new InvalidOperationException("Utilisateur non authentifié");
 
@@ -114,7 +125,6 @@ public class TechnicalInterventionsController : ControllerBase
 
         if (intervention == null) return NotFound();
 
-        // ✅ FIXED: Use TechnicalChecklistItem instead of MaintenanceChecklistItem
         var checklistItem = new TechnicalChecklistItem
         {
             TechnicalInterventionId = id,
@@ -122,7 +132,6 @@ public class TechnicalInterventionsController : ControllerBase
             IsCompleted = false,
         };
 
-        // Add via DbSet for consistency
         _db.TechnicalChecklistItems.Add(checklistItem);
         await _db.SaveChangesAsync();
 
@@ -166,7 +175,10 @@ public class TechnicalInterventionsController : ControllerBase
     }
 }
 
-public record CreateTechnicalInterventionRequest(
+// ✅ RENOMMÉ : CreateTechnicalInterventionRequest -> CreateInterventionRequest
+// Évite toute collision avec SalesFlow.Application.Technical.DTOs.CreateTechnicalInterventionRequest
+// (DTO utilisé par TechnicalInterventionService, non utilisé par ce contrôleur).
+public record CreateInterventionRequest(
     Guid ClientId,
     string? Notes,
     DateTime StartTime
