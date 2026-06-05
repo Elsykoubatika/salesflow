@@ -108,7 +108,7 @@ public class LiberalContractService : ILiberalContractService
             ClientId = request.ClientId,
             ContractNumber = GenerateContractNumber(),
             ContractName = request.ContractName.Trim(),
-            ServiceDescription = request.ServiceDescription?.Trim(),
+            ServiceDescription = request.ServiceDescription?.Trim() ?? string.Empty,
             PricingModel = request.PricingModel,
             HourlyRate = request.PricingModel == "Hourly" ? request.Rate : null,
             DailyRate = request.PricingModel == "Daily" ? request.Rate : null,
@@ -153,7 +153,7 @@ public class LiberalContractService : ILiberalContractService
                 "La date de fin doit être après la date de début.");
 
         contract.ContractName = request.ContractName.Trim();
-        contract.ServiceDescription = request.ServiceDescription?.Trim();
+        contract.ServiceDescription = request.ServiceDescription?.Trim() ?? string.Empty;
         contract.PricingModel = request.PricingModel;
         contract.HourlyRate = request.PricingModel == "Hourly" ? request.Rate : null;
         contract.DailyRate = request.PricingModel == "Daily" ? request.Rate : null;

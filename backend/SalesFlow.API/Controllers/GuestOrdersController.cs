@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SalesFlow.Domain.Entities;
 using SalesFlow.Domain.Enums;
 using SalesFlow.Infrastructure.Persistence;
+using SalesFlow.Application.Services;
 
 namespace SalesFlow.Api.Controllers;
 
@@ -141,6 +142,38 @@ public class GuestOrdersController(AppDbContext db) : ControllerBase
         };
         _db.SalesOrders.Add(order);
         await _db.SaveChangesAsync();
+
+        // ─── 4.5 Affiliation tracking ────────────────────────────────────────
+        if (Request.Cookies.TryGetValue("dealflow_aff", out var shareIdStr) 
+            && Guid.TryParse(shareIdStr, out var shareId))
+        {
+            var share = await _db.DealShares
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == shareId);
+
+            if (share is not null)
+            {
+                var deal = await _db.Deals
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == share.DealId);
+
+                if (deal is not null)
+                {
+                    var saleEvent = new DealEvent
+                    {
+                        Id = Guid.NewGuid(),
+                        DealShareId = share.Id,
+                        EventType = "Sale",
+                        SaleAmount = total,
+                        OrderId = order.Id,
+                        CreatedAt = DateTime.UtcNow,
+                    };
+                    saleEvent.CommissionEarned = CommissionCalculator.Calculate(deal, saleEvent);
+                    _db.DealEvents.Add(saleEvent);
+                    await _db.SaveChangesAsync();
+                }
+            }
+        }
 
         // ─── 5. Réponse au visiteur ──────────────────────────────────────────
 
