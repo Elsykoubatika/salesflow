@@ -1,5 +1,6 @@
 /// Modèles du module Pipeline (Libéral).
 /// Alignés EXACTEMENT sur LiberalPipelineController du backend.
+library;
 
 /// Élément de la liste GET /api/liberal/pipeline
 class ProspectListItem {

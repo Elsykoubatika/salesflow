@@ -1,4 +1,5 @@
 /// Modèles Factures Techniques — alignés sur TechnicalInvoicesController (style _db).
+library;
 
 class InvoiceItem {
   final String id;

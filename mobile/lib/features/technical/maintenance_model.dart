@@ -1,4 +1,5 @@
 /// Modèles Maintenance — alignés sur TechnicalMaintenanceController (style _db).
+library;
 
 class MaintenanceListItem {
   final String id;

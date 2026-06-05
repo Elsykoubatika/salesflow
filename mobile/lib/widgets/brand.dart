@@ -76,7 +76,8 @@ class _InfinityPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     // Boucle droite — dégradé inverse
-    final rightRect = Rect.fromCircle(center: Offset(cx + r, cy), radius: r * 2);
+    final rightRect =
+        Rect.fromCircle(center: Offset(cx + r, cy), radius: r * 2);
     final rightPaint = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.bottomRight,
@@ -169,17 +170,38 @@ class _NetworkPainter extends CustomPainter {
 
     // Nœuds en coordonnées relatives (0..1)
     final nodes = <Offset>[
-      Offset(0.10, 0.12), Offset(0.38, 0.22), Offset(0.20, 0.42),
-      Offset(0.62, 0.30), Offset(0.82, 0.16), Offset(0.95, 0.40),
-      Offset(0.15, 0.66), Offset(0.50, 0.60), Offset(0.78, 0.72),
-      Offset(0.35, 0.86), Offset(0.92, 0.90), Offset(0.60, 0.95),
+      const Offset(0.10, 0.12),
+      const Offset(0.38, 0.22),
+      const Offset(0.20, 0.42),
+      const Offset(0.62, 0.30),
+      const Offset(0.82, 0.16),
+      const Offset(0.95, 0.40),
+      const Offset(0.15, 0.66),
+      const Offset(0.50, 0.60),
+      const Offset(0.78, 0.72),
+      const Offset(0.35, 0.86),
+      const Offset(0.92, 0.90),
+      const Offset(0.60, 0.95),
     ];
     final pts = nodes.map((n) => Offset(n.dx * w, n.dy * h)).toList();
 
     // Liens entre nœuds (indices)
     const links = [
-      [0, 1], [1, 2], [1, 3], [3, 4], [3, 5], [2, 6], [3, 7],
-      [6, 7], [7, 8], [5, 8], [6, 9], [8, 10], [9, 11], [7, 11], [4, 5],
+      [0, 1],
+      [1, 2],
+      [1, 3],
+      [3, 4],
+      [3, 5],
+      [2, 6],
+      [3, 7],
+      [6, 7],
+      [7, 8],
+      [5, 8],
+      [6, 9],
+      [8, 10],
+      [9, 11],
+      [7, 11],
+      [4, 5],
     ];
 
     final linePaint = Paint()

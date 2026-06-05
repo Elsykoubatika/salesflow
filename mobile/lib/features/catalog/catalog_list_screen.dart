@@ -144,32 +144,48 @@ class _CatalogListViewState extends State<_CatalogListView> {
                       hasSearch: state.activeSearch != null && state.activeSearch!.isNotEmpty,
                       onCreate: () => _openForm(context),
                     ),
-                  CatalogLoaded(items: final items, total: final total) => RefreshIndicator(
-                      onRefresh: () => context.read<CatalogCubit>().refresh(),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-                        itemCount: items.length + 1,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 4, left: 4),
-                              child: Text(
-                                '$total produit${total > 1 ? 's' : ''}',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
+                  CatalogLoaded(items: final items, total: final total) => Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '$total produit${total > 1 ? 's' : ''}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
-                            );
-                          }
-                          final p = items[index - 1];
-                          return _ProductTile(
-                            product: p,
-                            onTap: () => _openForm(context, product: p),
-                            onShare: () => _shareWhatsApp(context, p),
-                          );
-                        },
-                      ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: RefreshIndicator(
+                            onRefresh: () =>
+                                context.read<CatalogCubit>().refresh(),
+                            child: GridView.builder(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.66,
+                              ),
+                              itemCount: items.length,
+                              itemBuilder: (context, index) {
+                                final p = items[index];
+                                return _ProductCard(
+                                  product: p,
+                                  onTap: () =>
+                                      _openForm(context, product: p),
+                                  onShare: () => _shareWhatsApp(context, p),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   _ => const SizedBox.shrink(),
                 };
@@ -182,85 +198,155 @@ class _CatalogListViewState extends State<_CatalogListView> {
   }
 }
 
-class _ProductTile extends StatelessWidget {
+class _ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;
   final VoidCallback onShare;
 
-  const _ProductTile({required this.product, required this.onTap, required this.onShare});
+  const _ProductCard({
+    required this.product,
+    required this.onTap,
+    required this.onShare,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: theme.colorScheme.primaryContainer,
-                foregroundColor: theme.colorScheme.onPrimaryContainer,
-                child: const Icon(Icons.shopping_bag_outlined),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            product.name,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ─── Image ───────────────────────────────────────────────
+            AspectRatio(
+              aspectRatio: 1,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _ProductImage(url: product.imageUrl),
+                  if (!product.isActive)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(6),
                         ),
-                        if (!product.isActive)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text('Inactif',
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                )),
-                          ),
-                      ],
+                        child: const Text(
+                          'Inactif',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      formatMoney(product.price, product.currency),
-                      style: theme.textTheme.bodyMedium?.copyWith(
+                  Positioned(
+                    bottom: 4,
+                    right: 4,
+                    child: Material(
+                      color: theme.colorScheme.surface.withValues(alpha: 0.92),
+                      shape: const CircleBorder(),
+                      child: IconButton(
+                        iconSize: 18,
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.ios_share),
                         color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
+                        tooltip: 'Partager via WhatsApp',
+                        onPressed: product.isActive ? onShare : null,
                       ),
                     ),
-                    if (product.sku != null && product.sku!.isNotEmpty)
-                      Text(
-                        product.sku!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                  ),
+                ],
+              ),
+            ),
+            // ─── Infos ───────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 13, height: 1.2),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatMoney(product.price, product.currency),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (product.sku != null && product.sku!.isNotEmpty)
+                    Text(
+                      product.sku!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.ios_share),
-                color: theme.colorScheme.primary,
-                tooltip: 'Partager via WhatsApp',
-                onPressed: product.isActive ? onShare : null,
-              ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Image du produit avec gestion du chargement et des erreurs.
+class _ProductImage extends StatelessWidget {
+  final String? url;
+  const _ProductImage({this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final placeholder = Container(
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Icon(
+        Icons.shopping_bag_outlined,
+        size: 40,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+
+    if (url == null || url!.trim().isEmpty) return placeholder;
+
+    return Image.network(
+      url!,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return Container(
+          color: theme.colorScheme.surfaceContainerHighest,
+          child: const Center(
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           ),
+        );
+      },
+      errorBuilder: (context, error, stack) => Container(
+        color: theme.colorScheme.surfaceContainerHighest,
+        child: Icon(
+          Icons.image_not_supported_outlined,
+          size: 34,
+          color: theme.colorScheme.onSurfaceVariant,
         ),
       ),
     );

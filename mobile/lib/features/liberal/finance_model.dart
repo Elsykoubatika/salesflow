@@ -1,5 +1,6 @@
 /// Modèles du module Finance (Libéral).
 /// Alignés sur LiberalFinanceController (style _db).
+library;
 
 class FinanceAccount {
   final String id;

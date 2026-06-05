@@ -334,10 +334,10 @@ class _FormPanel extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            Text.rich(
+            const Text.rich(
               TextSpan(
                 text: 'Pas encore de compte ? ',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: Color(0xFF6A7771),
                 ),
@@ -390,8 +390,7 @@ class _FormPanel extends StatelessWidget {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            const BorderSide(color: DealFlowBrand.green600, width: 1.6),
+        borderSide: const BorderSide(color: DealFlowBrand.green600, width: 1.6),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

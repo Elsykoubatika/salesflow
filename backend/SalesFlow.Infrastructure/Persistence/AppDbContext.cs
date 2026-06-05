@@ -40,6 +40,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<FinanceTransaction> FinanceTransactions => Set<FinanceTransaction>();
     public DbSet<FinanceBudget> FinanceBudgets => Set<FinanceBudget>();
 
+    // ─── AFFILIATE MODULE ──────────────────────────────────────────────────────
+    public DbSet<Deal> Deals => Set<Deal>();
+    public DbSet<DealShare> DealShares => Set<DealShare>();
+    public DbSet<DealEvent> DealEvents => Set<DealEvent>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Charge automatiquement toutes les configurations IEntityTypeConfiguration
@@ -52,6 +57,47 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithMany(x => x.ChecklistItems)
             .HasForeignKey(x => x.TechnicalInterventionId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        //
+        modelBuilder.Entity<Deal>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.CreatorUserId);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => new { e.Status, e.ActiveFrom, e.ActiveTo });
+            entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.CommissionType).HasMaxLength(8).IsRequired();
+            entity.Property(e => e.Currency).HasMaxLength(8);
+            entity.Property(e => e.Status).HasMaxLength(16);
+            entity.Property(e => e.CommissionAmount).HasPrecision(18, 2);
+            entity.Property(e => e.CommissionPercent).HasPrecision(5, 2);
+        });
+
+        modelBuilder.Entity<DealShare>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UniqueCode).IsUnique();
+            entity.HasIndex(e => e.DealId);
+            entity.HasIndex(e => e.AffiliateUserId);
+            entity.HasIndex(e => new { e.DealId, e.AffiliateUserId, e.Channel })
+                  .IsUnique(); // un seul lien par (deal, affilié, canal)
+            entity.Property(e => e.UniqueCode).HasMaxLength(16).IsRequired();
+            entity.Property(e => e.Channel).HasMaxLength(16).IsRequired();
+        });
+
+        modelBuilder.Entity<DealEvent>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.DealShareId);
+            entity.HasIndex(e => e.EventType);
+            entity.HasIndex(e => new { e.DealShareId, e.EventType, e.CreatedAt });
+            entity.Property(e => e.EventType).HasMaxLength(8).IsRequired();
+            entity.Property(e => e.IpHash).HasMaxLength(32);
+            entity.Property(e => e.UserAgent).HasMaxLength(200);
+            entity.Property(e => e.SaleAmount).HasPrecision(18, 2);
+            entity.Property(e => e.CommissionEarned).HasPrecision(18, 2);
+        });
+
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

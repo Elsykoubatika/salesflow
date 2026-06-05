@@ -22,6 +22,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   late final TextEditingController _priceController;
   late final TextEditingController _currencyController;
   late final TextEditingController _skuController;
+  late final TextEditingController _imageUrlController;
   late bool _isActive;
 
   bool _saving = false;
@@ -39,6 +40,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _priceController = TextEditingController(text: p?.price.toString() ?? '');
     _currencyController = TextEditingController(text: p?.currency ?? 'XAF');
     _skuController = TextEditingController(text: p?.sku ?? '');
+    _imageUrlController = TextEditingController(text: p?.imageUrl ?? '');
     _isActive = p?.isActive ?? true;
   }
 
@@ -49,6 +51,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _priceController.dispose();
     _currencyController.dispose();
     _skuController.dispose();
+    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -68,6 +71,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           price: price,
           currency: _currencyController.text.trim(),
           sku: _nullIfEmpty(_skuController.text),
+          imageUrl: _nullIfEmpty(_imageUrlController.text),
           isActive: _isActive,
         );
       } else {
@@ -77,6 +81,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           price: price,
           currency: _currencyController.text.trim(),
           sku: _nullIfEmpty(_skuController.text),
+          imageUrl: _nullIfEmpty(_imageUrlController.text),
         );
       }
       if (mounted) Navigator.pop(context, true);
@@ -235,6 +240,63 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 ),
                 maxLines: 4,
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _imageUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'Image du produit (lien URL)',
+                  prefixIcon: Icon(Icons.image_outlined),
+                  hintText: 'https://...',
+                ),
+                keyboardType: TextInputType.url,
+                onChanged: (_) => setState(() {}),
+              ),
+              if (_imageUrlController.text.trim().isNotEmpty) ...[
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 10,
+                    child: Image.network(
+                      _imageUrlController.text.trim(),
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, progress) =>
+                          progress == null
+                              ? child
+                              : Container(
+                                  color: theme
+                                      .colorScheme.surfaceContainerHighest,
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    ),
+                                  ),
+                                ),
+                      errorBuilder: (context, error, stack) => Container(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.broken_image_outlined,
+                                color: theme.colorScheme.onSurfaceVariant),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Lien image invalide',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               if (_isEditing) ...[
                 const SizedBox(height: 8),
                 SwitchListTile(

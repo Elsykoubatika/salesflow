@@ -1,4 +1,5 @@
 /// Modèles Devis Technique — alignés sur TechnicalQuoteResponse (DTOs backend).
+library;
 
 class QuoteListItem {
   final String id;

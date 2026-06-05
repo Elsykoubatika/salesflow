@@ -1,88 +1,142 @@
-import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
 
-typedef RecommendationAction = void Function(BuildContext);
+/// Réponse complète de GET /api/dashboard/overview.
+class DashboardOverview extends Equatable {
+  final double todayRevenue;
+  final double todayDeltaPercent;
+  final int inProgressOrders;
+  final double monthRevenue;
+  final double monthDeltaPercent;
+  final int activeClients;
+  final int newClientsThisMonth;
+  final List<DailyRevenuePoint> revenueByDay;
+  final List<TopProductItem> topProducts;
+  final List<DashboardAlert> alerts;
+  final String currency;
+  final DateTime generatedAt;
 
-/// Métriques clés pour le dashboard exécutif.
-class DashboardMetrics {
-  final int totalClients;
-  final int activeThisMonth;
-  final num revenueThisMonth;
-  final num revenueLast30Days;
-  final num revenueTrend; // % change vs last month
-  
-  final int ordersTotal;
-  final int ordersPending;
-  final int ordersAccepted;
-  final int ordersPaid;
-  final int ordersOverdue; // Paid dans le futur vs aujourd'hui
-  
-  final int productsTotal;
-  final int productsLowStock; // qty < seuil
-  final int productsOutOfStock;
-  
-  final int proofsTotal;
-  final int proofsPending;
-  final int proofsValidated;
-  final int proofsErrors;
-
-  DashboardMetrics({
-    required this.totalClients,
-    required this.activeThisMonth,
-    required this.revenueThisMonth,
-    required this.revenueLast30Days,
-    required this.revenueTrend,
-    required this.ordersTotal,
-    required this.ordersPending,
-    required this.ordersAccepted,
-    required this.ordersPaid,
-    required this.ordersOverdue,
-    required this.productsTotal,
-    required this.productsLowStock,
-    required this.productsOutOfStock,
-    required this.proofsTotal,
-    required this.proofsPending,
-    required this.proofsValidated,
-    required this.proofsErrors,
+  const DashboardOverview({
+    required this.todayRevenue,
+    required this.todayDeltaPercent,
+    required this.inProgressOrders,
+    required this.monthRevenue,
+    required this.monthDeltaPercent,
+    required this.activeClients,
+    required this.newClientsThisMonth,
+    required this.revenueByDay,
+    required this.topProducts,
+    required this.alerts,
+    required this.currency,
+    required this.generatedAt,
   });
 
-  factory DashboardMetrics.empty() => DashboardMetrics(
-    totalClients: 0,
-    activeThisMonth: 0,
-    revenueThisMonth: 0,
-    revenueLast30Days: 0,
-    revenueTrend: 0,
-    ordersTotal: 0,
-    ordersPending: 0,
-    ordersAccepted: 0,
-    ordersPaid: 0,
-    ordersOverdue: 0,
-    productsTotal: 0,
-    productsLowStock: 0,
-    productsOutOfStock: 0,
-    proofsTotal: 0,
-    proofsPending: 0,
-    proofsValidated: 0,
-    proofsErrors: 0,
-  );
+  factory DashboardOverview.fromJson(Map<String, dynamic> json) {
+    return DashboardOverview(
+      todayRevenue: (json['todayRevenue'] as num? ?? 0).toDouble(),
+      todayDeltaPercent: (json['todayDeltaPercent'] as num? ?? 0).toDouble(),
+      inProgressOrders: (json['inProgressOrders'] as num? ?? 0).toInt(),
+      monthRevenue: (json['monthRevenue'] as num? ?? 0).toDouble(),
+      monthDeltaPercent: (json['monthDeltaPercent'] as num? ?? 0).toDouble(),
+      activeClients: (json['activeClients'] as num? ?? 0).toInt(),
+      newClientsThisMonth: (json['newClientsThisMonth'] as num? ?? 0).toInt(),
+      revenueByDay: ((json['revenueByDay'] as List?) ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map(DailyRevenuePoint.fromJson)
+          .toList(),
+      topProducts: ((json['topProducts'] as List?) ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map(TopProductItem.fromJson)
+          .toList(),
+      alerts: ((json['alerts'] as List?) ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map(DashboardAlert.fromJson)
+          .toList(),
+      currency: json['currency'] as String? ?? 'XAF',
+      generatedAt: DateTime.tryParse(json['generatedAt'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        todayRevenue,
+        inProgressOrders,
+        monthRevenue,
+        activeClients,
+        revenueByDay,
+        topProducts,
+        alerts,
+        generatedAt,
+      ];
 }
 
-/// Recommandations intelligentes basées sur les données.
-enum RecommendationSeverity { info, warning, urgent }
+class DailyRevenuePoint extends Equatable {
+  final DateTime date;
+  final double amount;
+  const DailyRevenuePoint({required this.date, required this.amount});
 
-class Recommendation {
-  final String id;
-  final RecommendationSeverity severity;
+  factory DailyRevenuePoint.fromJson(Map<String, dynamic> json) {
+    return DailyRevenuePoint(
+      date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+      amount: (json['amount'] as num? ?? 0).toDouble(),
+    );
+  }
+
+  @override
+  List<Object?> get props => [date, amount];
+}
+
+class TopProductItem extends Equatable {
+  final String productId;
+  final String name;
+  final int salesCount;
+  final String currency;
+  final double unitPrice;
+
+  const TopProductItem({
+    required this.productId,
+    required this.name,
+    required this.salesCount,
+    required this.currency,
+    required this.unitPrice,
+  });
+
+  factory TopProductItem.fromJson(Map<String, dynamic> json) {
+    return TopProductItem(
+      productId: json['productId'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      salesCount: (json['salesCount'] as num? ?? 0).toInt(),
+      currency: json['currency'] as String? ?? 'XAF',
+      unitPrice: (json['unitPrice'] as num? ?? 0).toDouble(),
+    );
+  }
+
+  @override
+  List<Object?> get props => [productId, name, salesCount, unitPrice];
+}
+
+class DashboardAlert extends Equatable {
+  final String type;
+  final String severity; // info | warning | danger
   final String title;
-  final String description;
-  final String actionLabel;
-  final RecommendationAction? action;
+  final String action;
 
-  Recommendation({
-    required this.id,
+  const DashboardAlert({
+    required this.type,
     required this.severity,
     required this.title,
-    required this.description,
-    required this.actionLabel,
-    this.action,
+    required this.action,
   });
+
+  factory DashboardAlert.fromJson(Map<String, dynamic> json) {
+    return DashboardAlert(
+      type: json['type'] as String? ?? '',
+      severity: json['severity'] as String? ?? 'info',
+      title: json['title'] as String? ?? '',
+      action: json['action'] as String? ?? '',
+    );
+  }
+
+  @override
+  List<Object?> get props => [type, severity, title, action];
 }

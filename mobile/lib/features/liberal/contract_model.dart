@@ -1,5 +1,6 @@
 /// Modèles du module Contrats (Libéral).
 /// Alignés sur LiberalContractsController (style _db, objets anonymes).
+library;
 
 /// Élément de liste — GET /api/liberal/contracts
 class ContractListItem {

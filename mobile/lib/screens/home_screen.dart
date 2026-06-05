@@ -28,7 +28,8 @@ class HomeScreen extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         if (state is! AuthAuthenticated) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
         }
         return Scaffold(
           backgroundColor: AppTheme.warmBackground,
@@ -43,7 +44,7 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // ─── COMMERCE ───────────────────────────────────────────────
-              _SectionHeader(label: 'Commerce'),
+              const _SectionHeader(label: 'Commerce'),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 sliver: SliverGrid.count(
@@ -92,7 +93,7 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // ─── TECHNIQUE ──────────────────────────────────────────────
-              _SectionHeader(label: 'Technique'),
+              const _SectionHeader(label: 'Technique'),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 sliver: SliverGrid.count(
@@ -106,7 +107,8 @@ class HomeScreen extends StatelessWidget {
                       title: 'Devis Tech',
                       subtitle: 'Calculs intelligents',
                       color: const Color(0xFF00838F),
-                      onTap: () => _push(context, const TechnicalQuoteFormScreen()),
+                      onTap: () =>
+                          _push(context, const TechnicalQuoteFormScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.build_rounded,
@@ -129,14 +131,15 @@ class HomeScreen extends StatelessWidget {
                       title: 'Factures Tech',
                       subtitle: 'Durée × Tarif + Matériaux',
                       color: const Color(0xFF0D6B4F),
-                      onTap: () => _push(context, const TechnicalInvoiceScreen()),
+                      onTap: () =>
+                          _push(context, const TechnicalInvoiceScreen()),
                     ),
                   ],
                 ),
               ),
 
               // ─── LIBÉRAL ────────────────────────────────────────────────
-              _SectionHeader(label: 'Libéral'),
+              const _SectionHeader(label: 'Libéral'),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
                 sliver: SliverGrid.count(
@@ -150,7 +153,8 @@ class HomeScreen extends StatelessWidget {
                       title: 'Pipeline',
                       subtitle: 'Prospects → Contrats',
                       color: const Color(0xFF5E35B1),
-                      onTap: () => _push(context, const LiberalPipelineScreen()),
+                      onTap: () =>
+                          _push(context, const LiberalPipelineScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.handshake_rounded,
@@ -165,14 +169,16 @@ class HomeScreen extends StatelessWidget {
                       title: 'Projets',
                       subtitle: 'Gestion A-Z + PDF',
                       color: const Color(0xFF6A1B9A),
-                      onTap: () => _push(context, const ProjectManagementScreen()),
+                      onTap: () =>
+                          _push(context, const ProjectManagementScreen()),
                     ),
                     _ModuleTile(
                       icon: Icons.account_balance_wallet_rounded,
                       title: 'Finances',
                       subtitle: 'Perso & Famille',
                       color: const Color(0xFF7B1FA2),
-                      onTap: () => _push(context, const FinanceManagementScreen()),
+                      onTap: () =>
+                          _push(context, const FinanceManagementScreen()),
                     ),
                   ],
                 ),
@@ -205,15 +211,6 @@ class HomeScreen extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
-  void _comingSoon(BuildContext context, String module) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$module — Connectez le backend pour activer'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   void _confirmLogout(BuildContext context) {
     showDialog(
       context: context,
@@ -221,7 +218,9 @@ class HomeScreen extends StatelessWidget {
         title: const Text('Se déconnecter ?'),
         content: const Text('Vous devrez ressaisir votre mot de passe.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Annuler')),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -272,7 +271,8 @@ class _HeroHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.25)),
                     ),
                     child: CustomPaint(
                       painter: _DealFlowLogoPainter(),
@@ -330,11 +330,13 @@ class _HeroHeader extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                  border:
+                      Border.all(color: Colors.white.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

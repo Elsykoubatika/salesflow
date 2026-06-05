@@ -1,5 +1,6 @@
 /// Modèles du module Projets (Libéral).
 /// Alignés sur LiberalProjectsController (style _db).
+library;
 
 class ProjectListItem {
   final String id;

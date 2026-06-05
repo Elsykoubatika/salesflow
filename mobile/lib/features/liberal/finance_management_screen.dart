@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'finance_api.dart';
 import 'finance_cubit.dart';
 import 'finance_model.dart';
 
@@ -122,8 +121,7 @@ class _TotalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient:
-            const LinearGradient(colors: [_kLiberal, Color(0xFF9C27B0)]),
+        gradient: const LinearGradient(colors: [_kLiberal, Color(0xFF9C27B0)]),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -131,8 +129,7 @@ class _TotalCard extends StatelessWidget {
         children: [
           Text('Solde total',
               style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  fontSize: 13)),
+                  color: Colors.white.withValues(alpha: 0.85), fontSize: 13)),
           const SizedBox(height: 4),
           Text(_money(total),
               style: const TextStyle(
@@ -256,8 +253,8 @@ class _CreateAccountSheetState extends State<_CreateAccountSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding:
-          EdgeInsets.only(left: 20, right: 20, top: 20, bottom: bottomInset + 20),
+      padding: EdgeInsets.only(
+          left: 20, right: 20, top: 20, bottom: bottomInset + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,8 +372,8 @@ class _AccountActionsSheetState extends State<_AccountActionsSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding:
-          EdgeInsets.only(left: 20, right: 20, top: 20, bottom: bottomInset + 20),
+      padding: EdgeInsets.only(
+          left: 20, right: 20, top: 20, bottom: bottomInset + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

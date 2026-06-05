@@ -1,4 +1,5 @@
 /// Modèles Interventions Techniques — alignés sur TechnicalInterventionsController (style _db).
+library;
 
 /// Point de contrôle d'une intervention.
 class ChecklistItem {
