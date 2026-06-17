@@ -54,7 +54,7 @@ public class InventoryService : IInventoryService
             .CountAsync(ct);
 
         var items = await query
-            .OrderByDescending(i => i.IsLowStock)
+            .OrderByDescending(i => i.ReorderThreshold > 0 && i.Quantity <= i.ReorderThreshold)
             .ThenBy(i => i.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

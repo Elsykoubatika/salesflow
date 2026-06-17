@@ -18,6 +18,14 @@ public record CreateFinanceTransactionRequest(
     [Required] DateTime TransactionDate
 );
 
+public record CreateFinanceTransactionRequestBody(
+    [Required] string TransactionType,
+    [Range(0.01, 999_999_999)] decimal Amount,
+    [MaxLength(100)] string? Category,
+    [MaxLength(200)] string? Description,
+    [Required] DateTime TransactionDate
+);
+
 public record CreateBudgetRequest(
     [Required] Guid AccountId, // -> FinanceAccountId
     [Required, MaxLength(100)] string BudgetName,

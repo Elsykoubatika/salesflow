@@ -132,13 +132,20 @@ public class PublicCatalogController : ControllerBase
     [HttpGet("categories")]
     public async Task<ActionResult<List<CategoryItem>>> Categories()
     {
-        // Catégories inférées des préfixes de SKU
-        var prefixes = await _db.Products
+        // 1. On rapatrie tous les SKUs non null (filtre traduisible en SQL)
+        var skus = await _db.Products
             .AsNoTracking()
-            .Where(p => p.IsActive && p.Sku != null && p.Sku.Contains('-'))
-            .Select(p => p.Sku!.Substring(0, p.Sku.IndexOf('-')))
-            .Distinct()
+            .Where(p => p.IsActive && p.Sku != null)
+            .Select(p => p.Sku!)
             .ToListAsync();
+
+        // 2. Traitement côté client (en mémoire) — c'est trivial sur quelques
+        //    centaines de produits, et ça évite les soucis de traduction LINQ→SQL
+        var prefixes = skus
+            .Where(s => s.Contains('-'))
+            .Select(s => s.Substring(0, s.IndexOf('-')))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         var cats = prefixes
             .Select(p => new CategoryItem(p.ToLower(), MapLabel(p)))

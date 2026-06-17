@@ -114,17 +114,41 @@ public class LiberalFinanceService : ILiberalFinanceService
     // ===== TRANSACTIONS =====
 
     public async Task<Result<FinanceTransactionResponse>> RecordTransactionAsync(
-        CreateFinanceTransactionRequest request,
-        CancellationToken ct = default)
+    CreateFinanceTransactionRequest request,
+    CancellationToken ct = default)
     {
         var userId = RequireUserId();
 
+        // ─── Validation stricte du type ─────────────────────────────────────────
+        var validTypes = new[] { "Income", "Expense", "Transfer" };
+        if (!validTypes.Contains(request.TransactionType))
+        {
+            return Result<FinanceTransactionResponse>.Failure(
+                $"Type de transaction invalide. Valeurs acceptées : {string.Join(", ", validTypes)}.");
+        }
+
+        if (request.Amount <= 0)
+        {
+            return Result<FinanceTransactionResponse>.Failure(
+                "Le montant doit être strictement positif.");
+        }
+
+        // ─── Vérification du compte ─────────────────────────────────────────────
         var account = await _db.FinanceAccounts
             .FirstOrDefaultAsync(a => a.Id == request.AccountId && a.UserId == userId, ct);
 
         if (account is null)
             return Result<FinanceTransactionResponse>.Failure("Compte introuvable.");
 
+        // ─── Vérification de solde pour les sorties ─────────────────────────────
+        if (request.TransactionType == "Expense" && account.CurrentBalance < request.Amount)
+        {
+            return Result<FinanceTransactionResponse>.Failure(
+                $"Solde insuffisant. Solde actuel : {account.CurrentBalance:N0} XAF, " +
+                $"montant demandé : {request.Amount:N0} XAF.");
+        }
+
+        // ─── Création de la transaction ─────────────────────────────────────────
         var transaction = new FinanceTransaction
         {
             FinanceAccountId = request.AccountId,
@@ -136,11 +160,22 @@ public class LiberalFinanceService : ILiberalFinanceService
             Status = "Completed"
         };
 
-        // Mettre à jour le solde du compte
-        if (request.TransactionType == "Income")
-            account.CurrentBalance += request.Amount;
-        else if (request.TransactionType == "Expense")
-            account.CurrentBalance -= request.Amount;
+        // ─── Mise à jour du solde — switch exhaustif ────────────────────────────
+        switch (request.TransactionType)
+        {
+            case "Income":
+                account.CurrentBalance += request.Amount;
+                break;
+            case "Expense":
+                account.CurrentBalance -= request.Amount;
+                break;
+            case "Transfer":
+                // Transfer = sortie de ce compte (l'entrée sur le compte cible
+                // est gérée par une seconde transaction côté compte destinataire)
+                account.CurrentBalance -= request.Amount;
+                break;
+        }
+        account.UpdatedAt = DateTime.UtcNow;
 
         _db.FinanceTransactions.Add(transaction);
         await _db.SaveChangesAsync(ct);
